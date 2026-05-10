@@ -1150,7 +1150,7 @@ button {
   <!-- WELCOME SCREEN (only first run) -->
   <div id="welcome" class="welcome hidden">
     <div class="welcome-logo">MJ<span>+</span></div>
-    <div class="welcome-tagline">Train hard and smart.</div>
+    <div class="welcome-tagline">Train hard, train smart.</div>
     <div class="welcome-text">
       Každé ráno řekne, co dělat. Bere v úvahu, co bylo včera, jak se cítíš dnes, a co tělu chybí v týdnu.
     </div>
@@ -1162,7 +1162,7 @@ button {
     <header class="header">
       <div class="logo-block">
         <div class="logo">MJ<span>+</span></div>
-        <div class="logo-tagline">Train hard and smart.</div>
+        <div class="logo-tagline">Train hard, train smart.</div>
       </div>
       <div class="header-date" id="header-date"></div>
     </header>
@@ -1181,7 +1181,7 @@ button {
     <!-- Balance Section -->
     <div class="section">
       <div class="section-header">
-        <div class="section-title">Týdenní bilance</div>
+        <div class="section-title">Silový trénink</div>
       </div>
       <div class="balance-grid" id="balance-grid"></div>
     </div>
@@ -1245,6 +1245,16 @@ button {
     <button class="modal-close" onclick="closeSlotModal()">✕</button>
   </div>
   <div class="modal-body" id="slot-modal-body"></div>
+</div>
+
+<!-- Add Activity Modal -->
+<div class="modal" id="add-activity-modal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div style="font-size: 14px; font-weight: 700; flex: 1;">Přidat aktivitu</div>
+    <button class="modal-close" onclick="closeAddActivityModal()">✕</button>
+  </div>
+  <div class="modal-body" id="add-activity-modal-body"></div>
 </div>
 
 <!-- Toast -->
@@ -1512,8 +1522,16 @@ function calculateZ2Minutes() {
     const days = daysAgo(entry.date);
     if (days < 0 || days > Z2_WINDOW_DAYS) continue;
 
-    const minutes = Z2_ACTIVITIES[entry.type];
-    if (minutes && minutes > 0) {
+    // Pokud má entry custom minutes (manuálně přidaná aktivita), použij je
+    // Jinak použij default z Z2_ACTIVITIES
+    let minutes = 0;
+    if (Z2_ACTIVITIES[entry.type] !== undefined) {
+      minutes = entry.customMinutes && entry.customMinutes > 0
+        ? entry.customMinutes
+        : Z2_ACTIVITIES[entry.type];
+    }
+
+    if (minutes > 0) {
       total += minutes;
       events.push({
         date: entry.date,
@@ -1629,8 +1647,7 @@ function renderHero() {
     container.innerHTML = `
       <div class="hero">
         <div class="hero-label">Začni den</div>
-        <div class="hero-title">Pojďme začít</div>
-        <div class="hero-subtitle">Krátký ranní check-in. Pět otázek, doporučení do minuty.</div>
+        <div class="hero-title">Let's gooo</div>
         <button class="btn-primary" onclick="startCheckin()">
           Ranní check-in
         </button>
@@ -1647,7 +1664,7 @@ function renderCardioTrackers() {
   container.innerHTML = `
     ${renderTrackerCard({
       key: 'z2',
-      title: `Zone 2 — ${Z2_WINDOW_DAYS} dní`,
+      title: `Zone 2 (${Z2_WINDOW_DAYS} dní)`,
       pct: z2.pct,
       progressLabel: `${z2.total} / ${z2.target} min`,
       statusLabel: z2.label,
@@ -1655,7 +1672,7 @@ function renderCardioTrackers() {
     })}
     ${renderTrackerCard({
       key: 'vo2max',
-      title: `VO2max — ${VO2MAX_WINDOW_DAYS} dní`,
+      title: `VO2 max (${VO2MAX_WINDOW_DAYS} dní)`,
       pct: v.pct,
       progressLabel: `${v.total.toFixed(1)} / ${v.target.toFixed(1)} bodů`,
       statusLabel: v.label,
@@ -1752,6 +1769,8 @@ function openZ2Detail() {
       <div style="margin-top: 16px; padding: 12px 14px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
         ${advice}
       </div>
+
+      <button class="btn-primary" style="margin-top: 16px;" onclick="openAddActivityModal('z2')">+ Přidat aktivitu</button>
     </div>
   `;
   openModal('slot-modal');
@@ -1760,7 +1779,7 @@ function openZ2Detail() {
 function openVo2maxDetail() {
   const v = getVo2maxStatus();
   const body = document.getElementById('slot-modal-body');
-  document.querySelector('#slot-modal .modal-header > div').textContent = 'VO2max stimulus';
+  document.querySelector('#slot-modal .modal-header > div').textContent = 'VO2 max';
 
   const eventsHtml = v.events.length === 0
     ? `<div style="text-align:center; padding: 24px; color: var(--text-tertiary); font-size: 13px;">Žádný stimulus za ${VO2MAX_WINDOW_DAYS} dní.</div>`
@@ -1793,7 +1812,7 @@ function openVo2maxDetail() {
 
   body.innerHTML = `
     <div class="slot-detail">
-      <h3>VO2max ${v.emoji}</h3>
+      <h3>VO2 max ${v.emoji}</h3>
       <div class="subtitle">${v.total.toFixed(1)} / ${v.target.toFixed(1)} bodů za posledních ${VO2MAX_WINDOW_DAYS} dní</div>
 
       <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">
@@ -1811,9 +1830,123 @@ function openVo2maxDetail() {
       <div style="margin-top: 16px; padding: 12px 14px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
         ${advice}
       </div>
+
+      <button class="btn-primary" style="margin-top: 16px;" onclick="openAddActivityModal('vo2max')">+ Přidat aktivitu</button>
     </div>
   `;
   openModal('slot-modal');
+}
+
+/* ========================================
+   ADD ACTIVITY MODAL (manuální zápis pro Z2 / VO2max)
+   ======================================== */
+const ADD_ACTIVITY_OPTIONS = {
+  z2: {
+    title: 'Přidat Zone 2 aktivitu',
+    activities: [
+      { type: 'inline_easy', label: 'Inline klidně', icon: '🛼' }
+    ],
+    durations: [30, 45, 60, 75, 90]
+  },
+  vo2max: {
+    title: 'Přidat VO2 max aktivitu',
+    activities: [
+      { type: 'vo2max', label: 'VO2max session (4×4)', icon: '🔥' },
+      { type: 'florbal_zapas', label: 'Florbal zápas', icon: '🏆' },
+      { type: 'florbal_trenink', label: 'Florbal trénink', icon: '🏑' }
+    ],
+    durations: [30, 45, 60, 75, 90]
+  }
+};
+
+let addActivityState = { tracker: null, type: null, duration: null };
+
+function openAddActivityModal(tracker) {
+  addActivityState = { tracker, type: null, duration: null };
+  closeModal('slot-modal');
+  setTimeout(() => renderAddActivityModal(), 50);
+}
+
+function renderAddActivityModal() {
+  const cfg = ADD_ACTIVITY_OPTIONS[addActivityState.tracker];
+  if (!cfg) return;
+  const body = document.getElementById('add-activity-modal-body');
+  document.querySelector('#add-activity-modal .modal-header > div').textContent = cfg.title;
+
+  const activitiesHtml = cfg.activities.map(a => `
+    <button class="option-btn ${addActivityState.type === a.type ? 'selected' : ''}" onclick="selectAddActivityType('${a.type}')">
+      <span class="option-icon">${a.icon}</span>
+      <span class="option-label">${a.label}</span>
+    </button>
+  `).join('');
+
+  const durationsHtml = cfg.durations.map(d => `
+    <button class="option-btn ${addActivityState.duration === d ? 'selected' : ''}" style="text-align: center; justify-content: center;" onclick="selectAddActivityDuration(${d})">
+      <span class="option-label" style="text-align: center;">${d} min</span>
+    </button>
+  `).join('');
+
+  const canSave = addActivityState.type && addActivityState.duration;
+
+  body.innerHTML = `
+    <div class="slot-detail">
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">
+        Aktivita
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+        ${activitiesHtml}
+      </div>
+
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">
+        Délka
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 20px;">
+        ${durationsHtml}
+      </div>
+
+      <button class="btn-primary" ${canSave ? '' : 'disabled style="opacity: 0.4; cursor: not-allowed;"'} onclick="${canSave ? 'saveAddActivity()' : ''}">
+        Uložit
+      </button>
+    </div>
+  `;
+  openModal('add-activity-modal');
+}
+
+function selectAddActivityType(type) {
+  addActivityState.type = type;
+  renderAddActivityModal();
+}
+
+function selectAddActivityDuration(d) {
+  addActivityState.duration = d;
+  renderAddActivityModal();
+}
+
+function saveAddActivity() {
+  if (!addActivityState.type || !addActivityState.duration) return;
+
+  // Ulož jako historii — typ + délka. Pro Z2 počítání ukládáme `customMinutes`,
+  // pro VO2max body se použije VO2MAX_POINTS table podle typu.
+  const entry = {
+    date: todayISO(),
+    type: addActivityState.type,
+    customMinutes: addActivityState.duration,
+    addedManually: true,
+    timestamp: Date.now()
+  };
+
+  // Pokud typ je inline_easy → custom minutes přemažou default 60 min v calculateZ2Minutes
+  // Aktualizujeme historii (přidáme nový záznam, ne přepisujeme dnes)
+  state.history.unshift(entry);
+  saveState();
+
+  closeModal('add-activity-modal');
+  showToast(`Přidáno: ${ACTIVITY_TYPES[addActivityState.type]?.label || addActivityState.type} (${addActivityState.duration} min)`);
+  render();
+}
+
+function closeAddActivityModal() {
+  closeModal('add-activity-modal');
 }
 
 function renderBalance() {
@@ -3000,6 +3133,7 @@ function showSlotDetail(slotId) {
   const sBal = balance[slotId];
 
   const body = document.getElementById('slot-modal-body');
+  document.querySelector('#slot-modal .modal-header > div').textContent = slot.name;
 
   let exerciseRows = '';
   for (const exId of slot.exercises) {
@@ -3056,7 +3190,7 @@ function closeModal(id) {
   document.getElementById(id).classList.remove('active');
   setTimeout(() => {
     // Only close overlay if no other modal is open
-    const anyOpen = ['checkin-modal', 'recommendation-modal', 'history-modal', 'slot-modal']
+    const anyOpen = ['checkin-modal', 'recommendation-modal', 'history-modal', 'slot-modal', 'add-activity-modal']
       .some(mid => document.getElementById(mid).classList.contains('active'));
     if (!anyOpen) {
       document.getElementById('modal-overlay').classList.remove('active');
@@ -3066,7 +3200,7 @@ function closeModal(id) {
 
 function handleOverlayClick(e) {
   if (e.target.id === 'modal-overlay') {
-    ['checkin-modal', 'recommendation-modal', 'history-modal', 'slot-modal'].forEach(closeModal);
+    ['checkin-modal', 'recommendation-modal', 'history-modal', 'slot-modal', 'add-activity-modal'].forEach(closeModal);
   }
 }
 
