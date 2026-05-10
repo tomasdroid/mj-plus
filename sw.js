@@ -1,7 +1,7 @@
 // MJ+ Service Worker
 // Network-first pro HTML (rychlé updaty), cache-first pro static assets
 
-const CACHE_NAME = 'mj-plus-v6';
+const CACHE_NAME = 'mj-plus-v7';
 const ASSETS = [
   './',
   './index.html',

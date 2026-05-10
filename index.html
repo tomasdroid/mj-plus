@@ -95,7 +95,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 4px 16px;
+  padding: 60px 4px 16px;
   position: sticky;
   top: 0;
   background: linear-gradient(to bottom, var(--bg-primary) 80%, transparent);
@@ -1442,7 +1442,10 @@ function getYesterday() {
 }
 
 function getTodayEntry() {
-  return state.history.find(h => h.date === todayISO());
+  // Prefer non-manual entry (the check-in record), fallback to any
+  const today = todayISO();
+  const todayEntries = state.history.filter(h => h.date === today);
+  return todayEntries.find(h => !h.addedManually) || todayEntries[0] || null;
 }
 
 function getLast7Days() {
@@ -1454,8 +1457,8 @@ function getLast14Days() {
 }
 
 function addHistoryEntry(entry) {
-  // Remove existing entry for this date
-  state.history = state.history.filter(h => h.date !== entry.date);
+  // Remove existing entry for this date — but PRESERVE manually-added activities
+  state.history = state.history.filter(h => h.date !== entry.date || h.addedManually);
   state.history.push(entry);
   state.history.sort((a, b) => b.date.localeCompare(a.date));
   saveState();
@@ -2850,10 +2853,8 @@ function renderRecommendation() {
           <div class="exercise-note" style="font-style: normal; line-height: 1.5;">Modalita: běh (rovnatá trasa, atletický stadion, park). Subjektivně RPE 9 — můžeš ještě 30s, ale ne 4 min navíc. V poslední intervalu daj všechno.</div>
         </div>
         <div class="rec-actions">
-          ${state.recommendationTaken ? '<div style="text-align:center; padding: 12px; color: var(--status-good); font-weight: 600;">✓ Označeno jako splněné</div>' : `
-          <button class="btn-primary" onclick="acceptRecommendation()">Beru to</button>
+          <button class="btn-primary" onclick="markCompleted()">Splněno</button>
           ${hasNextAlternative(r) ? `<button class="btn-secondary" onclick="requestAlternative()" style="width: 100%;">Dej alternativu</button>` : ''}
-          `}
         </div>
       </div>
     `;
@@ -2874,10 +2875,8 @@ function renderRecommendation() {
           <div class="exercise-note">Konkrétní cviky doladíme později. Pro dnešek: kyčle (90/90, couch stretch), hrudní páteř (open book), ramena (doorway), strečink hams a adduktorů.</div>
         </div>
         <div class="rec-actions">
-          ${state.recommendationTaken ? '<div style="text-align:center; padding: 12px; color: var(--status-good); font-weight: 600;">✓ Označeno jako splněné</div>' : `
-          <button class="btn-primary" onclick="acceptRecommendation()">Beru to</button>
+          <button class="btn-primary" onclick="markCompleted()">Splněno</button>
           ${hasNextAlternative(r) ? `<button class="btn-secondary" onclick="requestAlternative()" style="width: 100%;">Dej alternativu</button>` : ''}
-          `}
         </div>
       </div>
     `;
@@ -2911,20 +2910,14 @@ function renderRecommendation() {
       <div class="rec-reason">${r.reason}</div>
       <div class="exercise-list">${exerciseCards}</div>
       <div class="rec-actions">
-        ${state.recommendationTaken ? `
-          <div style="text-align:center; padding: 12px; color: var(--status-good); font-weight: 600;">
-            ✓ Označeno jako splněné
-          </div>
-        ` : `
-          <button class="btn-primary" onclick="acceptRecommendation()">Beru to</button>
-          ${hasNextAlternative(r) ? `<button class="btn-secondary" onclick="requestAlternative()" style="width: 100%;">Dej alternativu</button>` : ''}
-        `}
+        <button class="btn-primary" onclick="markCompleted()">Splněno</button>
+        ${hasNextAlternative(r) ? `<button class="btn-secondary" onclick="requestAlternative()" style="width: 100%;">Dej alternativu</button>` : ''}
       </div>
     </div>
   `;
 }
 
-function acceptRecommendation() {
+function markCompleted() {
   const r = state.currentRecommendation;
   // Save today's entry to history
   const todayEntry = {
@@ -2935,13 +2928,18 @@ function acceptRecommendation() {
     recommended: true
   };
   addHistoryEntry(todayEntry);
-  state.recommendationTaken = true;
+  state.recommendationTaken = true;  // udržujeme pro hero rendering
   saveState();
-  showToast('Hotovo');
+  showToast('Splněno ✓');
   setTimeout(() => {
     closeRecommendation();
     render();
   }, 800);
+}
+
+// Backward-compat alias
+function acceptRecommendation() {
+  markCompleted();
 }
 
 function hasNextAlternative(r) {
