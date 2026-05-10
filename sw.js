@@ -1,7 +1,7 @@
 // MJ+ Service Worker
-// Cache-first strategy pro offline funkčnost
+// Network-first pro HTML (rychlé updaty), cache-first pro static assets
 
-const CACHE_NAME = 'mj-plus-v1';
+const CACHE_NAME = 'mj-plus-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -12,7 +12,7 @@ const ASSETS = [
   './icon-maskable.png'
 ];
 
-// Install — cache assets
+// Install — předcache assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
@@ -20,7 +20,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate — cleanup old caches
+// Activate — vyčistit staré cache
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -32,22 +32,41 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch — cache first, fallback to network, fallback to cached index
+// Fetch strategy:
+// - HTML: NETWORK-FIRST → vždy zkusí novou verzi, fallback cache pokud offline
+// - Static assets: CACHE-FIRST → rychlé
 self.addEventListener('fetch', (event) => {
-  // Pouze GET
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        // Cache nové requesty (Google Fonts atd.)
-        if (response && response.status === 200 && response.type === 'basic') {
+  const url = new URL(event.request.url);
+  const isHtml = event.request.mode === 'navigate' ||
+                 url.pathname.endsWith('/') ||
+                 url.pathname.endsWith('.html');
+
+  if (isHtml) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      }).catch(() => caches.match('./index.html'));
-    })
-  );
+      }).catch(() => {
+        return caches.match(event.request).then(c => c || caches.match('./index.html'));
+      })
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
+    );
+  }
 });
