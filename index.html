@@ -1,0 +1,2612 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MJ+</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F1419">
+<meta name="application-name" content="MJ+">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MJ+">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0F1419;
+  --bg-card: #1A1F26;
+  --bg-elevated: #232932;
+  --bg-modal: #161B22;
+  --border: #2A3038;
+  --text-primary: #F0F2F5;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --accent: #FF6B35;
+  --accent-hover: #FF7F50;
+  --accent-dim: rgba(255, 107, 53, 0.15);
+  --status-good: #22C55E;
+  --status-mid: #F59E0B;
+  --status-bad: #EF4444;
+  --status-good-dim: rgba(34, 197, 94, 0.15);
+  --status-mid-dim: rgba(245, 158, 11, 0.15);
+  --status-bad-dim: rgba(239, 68, 68, 0.15);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  --shadow-modal: 0 -8px 32px rgba(0,0,0,0.6);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+  letter-spacing: -0.01em;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+/* ========================================
+   APP CONTAINER
+   ======================================== */
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+  min-height: 100vh;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  #app { max-width: 560px; padding: 0 24px; }
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 4px 16px;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(to bottom, var(--bg-primary) 80%, transparent);
+  z-index: 10;
+}
+
+.logo-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  line-height: 1;
+}
+.logo span { color: var(--text-primary); }
+
+.logo-tagline {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.header-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* ========================================
+   HERO CARD
+   ======================================== */
+.hero {
+  background: linear-gradient(135deg, #1F2630 0%, #1A1F26 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.hero-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #0A0A0A;
+  font-weight: 700;
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  width: 100%;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 10px 14px;
+  font-size: 13px;
+  transition: var(--transition);
+}
+
+.btn-ghost:hover { color: var(--text-primary); }
+
+/* ========================================
+   SECTION HEADERS
+   ======================================== */
+.section {
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   BALANCE GRID
+   ======================================== */
+.balance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.balance-cell {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: var(--transition);
+  cursor: pointer;
+  min-height: 56px;
+}
+
+.balance-cell:hover {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.balance-cell-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.balance-cell-status {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.balance-cell.bad { border-left: 3px solid var(--status-bad); }
+.balance-cell.mid { border-left: 3px solid var(--status-mid); }
+.balance-cell.good { border-left: 3px solid var(--status-good); }
+
+/* ========================================
+   HISTORY LIST
+   ======================================== */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.history-day {
+  width: 32px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+}
+
+.history-content {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.history-content.empty {
+  color: var(--text-tertiary);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.history-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ========================================
+   FOOTER (RESET BUTTON)
+   ======================================== */
+.footer {
+  margin-top: 40px;
+  padding: 24px 4px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-version {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.btn-reset {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.btn-reset:hover {
+  color: var(--status-bad);
+  background: var(--status-bad-dim);
+}
+
+/* ========================================
+   MODAL (SLIDE FROM BOTTOM)
+   ======================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-modal);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  border-top: 1px solid var(--border);
+  box-shadow: var(--shadow-modal);
+  z-index: 101;
+  transform: translateY(100%);
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.modal.active { transform: translateY(0); }
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.modal-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-progress {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.progress-step {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background var(--transition);
+}
+
+.progress-step.active { background: var(--accent); }
+.progress-step.completed { background: var(--accent); opacity: 0.5; }
+
+.modal-close {
+  font-size: 18px;
+  color: var(--text-tertiary);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px 20px;
+}
+
+.modal-footer {
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+
+.modal-footer .btn-secondary { flex: 0 0 auto; }
+.modal-footer .btn-primary { flex: 1; }
+
+/* ========================================
+   QUESTION CARDS
+   ======================================== */
+.question {
+  display: none;
+  animation: fadeSlide 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.question.active { display: block; }
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.question-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.question-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.question-help {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.option-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.option-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.01em;
+}
+
+.option-btn:hover {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.option-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.option-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.option-meta {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+/* Feeling scale */
+.feeling-scale {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.feeling-btn {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: var(--transition);
+  color: var(--text-primary);
+}
+
+.feeling-btn .feeling-num {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.feeling-btn .feeling-emoji {
+  font-size: 16px;
+}
+
+.feeling-btn:hover {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.feeling-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #0A0A0A;
+}
+
+.feeling-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Multi-select */
+.multi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.multi-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+}
+
+.multi-btn:hover {
+  border-color: var(--accent);
+}
+
+.multi-btn.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.multi-btn .check {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.multi-btn.selected .check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0A0A0A;
+}
+
+.multi-btn .check svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.multi-btn.selected .check svg { opacity: 1; }
+
+/* ========================================
+   GYM PICKER (multi-select cviků)
+   ======================================== */
+.gym-picker-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gym-cat-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+/* ========================================
+   SUMMARY SCREEN (sanity check)
+   ======================================== */
+.summary {
+  display: none;
+}
+.summary.active { display: block; animation: fadeSlide 320ms cubic-bezier(0.32, 0.72, 0, 1); }
+
+.summary-list {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.summary-row {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.summary-row:last-child { border-bottom: none; }
+
+.summary-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* ========================================
+   RECOMMENDATION DISPLAY
+   ======================================== */
+.recommendation {
+  display: none;
+}
+.recommendation.active { display: block; animation: fadeSlide 320ms cubic-bezier(0.32, 0.72, 0, 1); }
+
+.rec-reason {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.exercise-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.exercise-num {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--bg-elevated);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.exercise-name {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.exercise-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.exercise-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.exercise-meta-num {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.intensity-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 8px;
+}
+
+.intensity-light { background: var(--status-good-dim); color: var(--status-good); }
+.intensity-medium { background: var(--status-mid-dim); color: var(--status-mid); }
+.intensity-heavy { background: var(--status-bad-dim); color: var(--status-bad); }
+
+.exercise-note {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.rec-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ========================================
+   FULL HISTORY VIEW
+   ======================================== */
+.history-full {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.history-full-day {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.history-full-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.history-full-content {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.history-full-exercises {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ========================================
+   SLOT DETAIL POPOVER
+   ======================================== */
+.slot-detail h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.slot-detail .subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.slot-detail-row {
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.slot-detail-name { font-weight: 600; }
+.slot-detail-time { color: var(--text-tertiary); font-size: 12px; }
+
+/* ========================================
+   WELCOME SCREEN
+   ======================================== */
+.welcome {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.welcome-logo {
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+
+.welcome-logo span { color: var(--text-primary); }
+
+.welcome-tagline {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.welcome-text {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: 40px;
+  line-height: 1.6;
+  max-width: 320px;
+  font-weight: 500;
+}
+
+.welcome .btn-primary {
+  max-width: 280px;
+}
+
+/* ========================================
+   CONFIRMATION TOAST
+   ======================================== */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 200;
+  opacity: 0;
+  transition: all var(--transition);
+  box-shadow: var(--shadow-card);
+}
+
+.toast.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ========================================
+   UTILITY
+   ======================================== */
+.hidden { display: none !important; }
+.text-accent { color: var(--accent); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+
+@media (max-width: 380px) {
+  .balance-cell { padding: 12px 10px; }
+  .balance-cell-name { font-size: 12px; }
+  .feeling-btn .feeling-num { font-size: 20px; }
+  .feeling-btn .feeling-emoji { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- WELCOME SCREEN (only first run) -->
+  <div id="welcome" class="welcome hidden">
+    <div class="welcome-logo">MJ<span>+</span></div>
+    <div class="welcome-tagline">Train hard and smart.</div>
+    <div class="welcome-text">
+      Každé ráno řekne, co dělat. Bere v úvahu, co bylo včera, jak se cítíš dnes, a co tělu chybí v týdnu.
+    </div>
+    <button class="btn-primary" onclick="completeWelcome()">Začít</button>
+  </div>
+
+  <!-- MAIN SCREEN -->
+  <div id="main">
+    <header class="header">
+      <div class="logo-block">
+        <div class="logo">MJ<span>+</span></div>
+        <div class="logo-tagline">Train hard and smart.</div>
+      </div>
+      <div class="header-date" id="header-date"></div>
+    </header>
+
+    <!-- Hero Card -->
+    <div id="hero-container"></div>
+
+    <!-- Balance Section -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Týdenní bilance</div>
+      </div>
+      <div class="balance-grid" id="balance-grid"></div>
+    </div>
+
+    <!-- History Section -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Posledních 7 dní</div>
+        <button class="btn-ghost" onclick="openFullHistory()">Vše ›</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-version">MJ+ v0.1 · TEST</div>
+      <button class="btn-reset" onclick="confirmReset()">Reset dat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)"></div>
+
+<!-- Check-in Modal -->
+<div class="modal" id="checkin-modal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div class="modal-progress" id="checkin-progress"></div>
+    <button class="modal-close" onclick="closeCheckin()">✕</button>
+  </div>
+  <div class="modal-body" id="checkin-body"></div>
+  <div class="modal-footer" id="checkin-footer"></div>
+</div>
+
+<!-- Recommendation Modal -->
+<div class="modal" id="recommendation-modal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div style="font-size: 14px; font-weight: 700; flex: 1;">Dnešní doporučení</div>
+    <button class="modal-close" onclick="closeRecommendation()">✕</button>
+  </div>
+  <div class="modal-body" id="recommendation-body"></div>
+</div>
+
+<!-- Full History Modal -->
+<div class="modal" id="history-modal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div style="font-size: 14px; font-weight: 700; flex: 1;">Celá historie</div>
+    <button class="modal-close" onclick="closeFullHistory()">✕</button>
+  </div>
+  <div class="modal-body" id="history-modal-body"></div>
+</div>
+
+<!-- Slot Detail Modal -->
+<div class="modal" id="slot-modal">
+  <div class="modal-handle"></div>
+  <div class="modal-header">
+    <div style="font-size: 14px; font-weight: 700; flex: 1;">Detail slotu</div>
+    <button class="modal-close" onclick="closeSlotModal()">✕</button>
+  </div>
+  <div class="modal-body" id="slot-modal-body"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========================================
+   DATA — EXERCISES & SLOTS
+   ======================================== */
+const EXERCISES = {
+  drep: { name: 'Dřep', slot: 'squat', coverage: 'full', cat: 3, group: 'leg_compound', sets: 3, reps: '4–6', tags: ['bedra', 'hams', 'koleno'] },
+  deadlift: { name: 'Deadlift', slot: 'hinge', coverage: 'full', cat: 3, group: 'leg_compound', sets: 3, reps: '3–5', tags: ['bedra', 'hams'] },
+  bulhar: { name: 'Bulharský dřep', slot: 'squat', coverage: 'full', cat: 2, subcat: 'spodek', group: 'leg_compound', sets: 3, reps: '6–8 / strana', tags: ['bedra', 'hams', 'koleno'] },
+  ohp: { name: 'Overhead press (DB, ve stoje)', slot: 'vertical_push', coverage: 'full', cat: 1, flag: 'sport_lighter', group: 'upper_push', sets: 3, reps: '5–6', tags: ['rameno', 'loket'] },
+  dipy: { name: 'Dipy', slot: 'vertical_push', coverage: 'full', cat: 1, group: 'upper_push', sets: 3, reps: '6–10', tags: ['rameno', 'loket'] },
+  pullup: { name: 'Pull-up', slot: 'vertical_pull', coverage: 'full', cat: 1, group: 'upper_pull', sets: 3, reps: '5–8', tags: ['rameno', 'loket'] },
+  chinup: { name: 'Chin-up', slot: 'vertical_pull', coverage: 'full', cat: 1, group: 'upper_pull', sets: 3, reps: '6–10', tags: ['loket'] },
+  pushup: { name: 'Push-ups', slot: 'horizontal_push', coverage: 'full', cat: 1, group: 'upper_push', sets: 3, reps: '8–12', tags: ['loket'] },
+  incline: { name: 'Incline DB press', slot: 'horizontal_push', coverage: 'full', cat: 1, group: 'upper_push', sets: 3, reps: '8–12', tags: ['rameno'] },
+  row: { name: 'Barbell row', slot: 'horizontal_pull', coverage: 'full', cat: 2, subcat: 'vrsek', group: 'upper_pull', sets: 3, reps: '6–8', tags: ['bedra'] },
+  hyper: { name: 'Hyperextenze (glute-focus)', slot: 'posterior_aux', coverage: 'full', cat: 2, subcat: 'spodek', group: 'accessory', sets: 3, reps: '10–12', tags: ['bedra', 'hams'] },
+  facepull: { name: 'Face pull', slot: 'horizontal_pull', coverage: 'partial', cat: 1, group: 'accessory', sets: 3, reps: '12–15', tags: [] },
+  // Kettlebell — jen v E bloku
+  kbswing: { name: 'KB swing', slot: 'posterior_aux', coverage: 'full', cat: 2, subcat: 'spodek', group: 'kb', sets: 5, reps: '10', tags: ['bedra', 'hams'] },
+  goblet: { name: 'Goblet squat', slot: 'squat', coverage: 'partial', cat: 2, subcat: 'spodek', group: 'kb', sets: 3, reps: '8–10', tags: ['koleno'] },
+  carry: { name: 'Suitcase carry', slot: 'core', coverage: 'full', cat: 1, group: 'kb', sets: 3, reps: '30–40 m / strana', tags: [] },
+  halo: { name: 'KB halo', slot: 'bonus', coverage: 'none', cat: 1, group: 'kb', sets: 3, reps: '5 / směr', tags: [] },
+  // Landmine — jen v F bloku
+  lmpress: { name: 'Landmine press', slot: 'vertical_push', coverage: 'partial', cat: 1, group: 'lm', sets: 3, reps: '8–10 / strana', tags: ['rameno'] },
+  lmrow: { name: 'Landmine row', slot: 'horizontal_pull', coverage: 'full', cat: 1, group: 'lm', sets: 3, reps: '8–10 / strana', tags: [] },
+  lmrot: { name: 'Landmine rotation', slot: 'bonus', coverage: 'none', cat: 1, group: 'lm', sets: 3, reps: '8 / strana', tags: [] },
+  pallof: { name: 'Pallof press (landmine)', slot: 'core', coverage: 'full', cat: 1, group: 'lm', sets: 3, reps: '8–10 / strana', tags: [] }
+};
+
+const SLOTS = [
+  { id: 'squat', name: 'Squat', exercises: ['drep', 'bulhar', 'goblet'] },
+  { id: 'hinge', name: 'Hinge', exercises: ['deadlift'] },
+  { id: 'vertical_push', name: 'V. Push', exercises: ['ohp', 'dipy', 'lmpress'] },
+  { id: 'vertical_pull', name: 'V. Pull', exercises: ['pullup', 'chinup'] },
+  { id: 'horizontal_push', name: 'H. Push', exercises: ['pushup', 'incline'] },
+  { id: 'horizontal_pull', name: 'H. Pull', exercises: ['row', 'lmrow', 'facepull'] },
+  { id: 'posterior_aux', name: 'Posterior', exercises: ['hyper', 'kbswing'] },
+  { id: 'core', name: 'Core', exercises: ['pallof', 'carry'] }
+];
+
+// Pevné cviky v blocích
+const E_BLOCK = ['kbswing', 'goblet', 'carry', 'halo'];
+const F_BLOCK = ['lmpress', 'lmrow', 'lmrot', 'pallof'];
+
+// Jen v blocích — neobjevují se v ad-hoc
+const BLOCK_ONLY = new Set([...E_BLOCK, ...F_BLOCK]);
+
+const ACTIVITY_TYPES = {
+  rest: { label: 'Volno', icon: '🌙', color: 'tertiary' },
+  stretching: { label: 'Protahování / Mobilita', icon: '🧘', color: 'tertiary' },
+  inline_easy: { label: 'Inline klidně', icon: '🛼', color: 'good' },
+  inline_tempo: { label: 'Inline s tempem', icon: '🛼', color: 'mid' },
+  florbal: { label: 'Florbal', icon: '🏑', color: 'mid' },
+  gym: { label: 'Gym', icon: '🏋️', color: 'accent' },
+  e_block: { label: 'Kettlebell den (E)', icon: '🔔', color: 'accent' },
+  f_block: { label: 'Landmine den (F)', icon: '⚙️', color: 'accent' },
+  other: { label: 'Jiné', icon: '·', color: 'tertiary' }
+};
+
+const BODY_PARTS = ['bedra', 'hams', 'koleno', 'rameno', 'loket'];
+
+const DAY_NAMES = ['Ne', 'Po', 'Út', 'St', 'Čt', 'Pá', 'So'];
+const DAY_NAMES_LONG = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
+const MONTH_NAMES = ['ledna', 'února', 'března', 'dubna', 'května', 'června', 'července', 'srpna', 'září', 'října', 'listopadu', 'prosince'];
+
+/* ========================================
+   STATE & STORAGE
+   ======================================== */
+const STORAGE_KEY = 'mjplus_v1';
+
+let state = {
+  initialized: false,
+  history: [], // { date, type, exercises, feeling, bodyFeel, time, tomorrow }
+  currentRecommendation: null, // { date, type, exercises, reason }
+  currentCheckin: null, // working state during check-in
+  recommendationTaken: false
+};
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.error('Save failed:', e);
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      state = JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error('Load failed:', e);
+  }
+}
+
+function resetState() {
+  localStorage.removeItem(STORAGE_KEY);
+  state = {
+    initialized: false,
+    history: [],
+    currentRecommendation: null,
+    currentCheckin: null,
+    recommendationTaken: false
+  };
+  showToast('Data vymazána');
+  setTimeout(() => location.reload(), 800);
+}
+
+function confirmReset() {
+  if (confirm('Opravdu vymazat všechna data? Nelze vzít zpět.')) {
+    resetState();
+  }
+}
+
+/* ========================================
+   DATE HELPERS
+   ======================================== */
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+function dateISO(offsetDays) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().split('T')[0];
+}
+
+function daysAgo(iso) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(iso);
+  target.setHours(0, 0, 0, 0);
+  return Math.floor((today - target) / (1000 * 60 * 60 * 24));
+}
+
+function formatHeaderDate() {
+  const d = new Date();
+  return `${DAY_NAMES_LONG[d.getDay()]} ${d.getDate()}.${d.getMonth() + 1}.`;
+}
+
+function formatHistoryDate(iso) {
+  const d = new Date(iso);
+  return DAY_NAMES[d.getDay()];
+}
+
+function formatLongDate(iso) {
+  const d = new Date(iso);
+  return `${DAY_NAMES_LONG[d.getDay()]} ${d.getDate()}. ${MONTH_NAMES[d.getMonth()]}`;
+}
+
+/* ========================================
+   HISTORY HELPERS
+   ======================================== */
+function getYesterday() {
+  return state.history.find(h => h.date === dateISO(-1));
+}
+
+function getTodayEntry() {
+  return state.history.find(h => h.date === todayISO());
+}
+
+function getLast7Days() {
+  return state.history.filter(h => daysAgo(h.date) <= 7 && daysAgo(h.date) >= 0);
+}
+
+function getLast14Days() {
+  return state.history.filter(h => daysAgo(h.date) <= 14 && daysAgo(h.date) >= 0);
+}
+
+function addHistoryEntry(entry) {
+  // Remove existing entry for this date
+  state.history = state.history.filter(h => h.date !== entry.date);
+  state.history.push(entry);
+  state.history.sort((a, b) => b.date.localeCompare(a.date));
+  saveState();
+}
+
+/* ========================================
+   BALANCE CALCULATION (sliding 7-day window)
+   ======================================== */
+function calculateBalance() {
+  const balance = {};
+  SLOTS.forEach(s => {
+    balance[s.id] = { count: 0, partialCount: 0, lastDate: null, lastExercise: null };
+  });
+
+  const last7 = getLast7Days();
+
+  for (const entry of last7) {
+    if (!entry.exercises) continue;
+    for (const exId of entry.exercises) {
+      const ex = EXERCISES[exId];
+      if (!ex || ex.slot === 'bonus') continue;
+      const slot = balance[ex.slot];
+      if (!slot) continue;
+
+      if (ex.coverage === 'full') {
+        slot.count++;
+      } else if (ex.coverage === 'partial') {
+        slot.partialCount++;
+      }
+
+      if (!slot.lastDate || entry.date > slot.lastDate) {
+        slot.lastDate = entry.date;
+        slot.lastExercise = exId;
+      }
+    }
+  }
+
+  return balance;
+}
+
+function getSlotStatus(slotId) {
+  const balance = calculateBalance();
+  const s = balance[slotId];
+  if (!s) return { status: 'bad', emoji: '❌', count: 0 };
+
+  if (s.count === 0 && s.partialCount === 0) {
+    return { status: 'bad', emoji: '❌', count: 0 };
+  }
+  if (s.count === 0 && s.partialCount > 0) {
+    return { status: 'mid', emoji: '⏳', count: s.partialCount };
+  }
+  if (s.count === 1) {
+    return { status: 'good', emoji: '✅', count: 1 };
+  }
+  if (s.count === 2) {
+    return { status: 'good', emoji: '💪', count: 2 };
+  }
+  return { status: 'good', emoji: '🔥', count: s.count };
+}
+
+/* ========================================
+   RENDER MAIN SCREEN
+   ======================================== */
+function render() {
+  document.getElementById('header-date').textContent = formatHeaderDate();
+  renderHero();
+  renderBalance();
+  renderHistory();
+}
+
+function renderHero() {
+  const container = document.getElementById('hero-container');
+  const todayEntry = getTodayEntry();
+
+  if (state.currentRecommendation && state.currentRecommendation.date === todayISO()) {
+    // Already have a recommendation today
+    const r = state.currentRecommendation;
+    const taken = state.recommendationTaken;
+    container.innerHTML = `
+      <div class="hero">
+        <div class="hero-label">${taken ? 'Dnešní trénink' : 'Doporučeno na dnes'}</div>
+        <div class="hero-title">${r.title}</div>
+        <div class="hero-subtitle">${r.exercises.map(e => EXERCISES[e].name).join(' · ')}</div>
+        <button class="btn-primary" onclick="openRecommendation()">
+          Otevřít detail
+        </button>
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div class="hero">
+        <div class="hero-label">Začni den</div>
+        <div class="hero-title">Pojďme začít</div>
+        <div class="hero-subtitle">Krátký ranní check-in. Pět otázek, doporučení do minuty.</div>
+        <button class="btn-primary" onclick="startCheckin()">
+          Ranní check-in
+        </button>
+      </div>
+    `;
+  }
+}
+
+function renderBalance() {
+  const grid = document.getElementById('balance-grid');
+  grid.innerHTML = SLOTS.map(s => {
+    const status = getSlotStatus(s.id);
+    return `
+      <div class="balance-cell ${status.status}" onclick="showSlotDetail('${s.id}')">
+        <div class="balance-cell-name">${s.name}</div>
+        <div class="balance-cell-status">${status.emoji}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const last7 = [];
+  for (let i = 1; i <= 7; i++) {
+    const date = dateISO(-i);
+    const entry = state.history.find(h => h.date === date);
+    last7.push({ date, entry });
+  }
+
+  list.innerHTML = last7.map(({ date, entry }) => {
+    const day = formatHistoryDate(date);
+    if (!entry) {
+      return `
+        <div class="history-item">
+          <div class="history-day">${day}</div>
+          <div class="history-content empty">—</div>
+        </div>
+      `;
+    }
+    return `
+      <div class="history-item">
+        <div class="history-day">${day}</div>
+        <div class="history-icon">${ACTIVITY_TYPES[entry.type]?.icon || '·'}</div>
+        <div class="history-content">${getActivityDescription(entry)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getActivityDescription(entry) {
+  if (!entry) return '—';
+  const type = ACTIVITY_TYPES[entry.type];
+  if (entry.type === 'gym' && entry.exercises) {
+    const names = entry.exercises.map(e => EXERCISES[e]?.name || e).join(', ');
+    return `Gym — ${names}`;
+  }
+  if (entry.type === 'e_block') return `Kettlebell den`;
+  if (entry.type === 'f_block') return `Landmine den`;
+  return type ? type.label : entry.type;
+}
+
+/* ========================================
+   CHECK-IN FLOW
+   ======================================== */
+const CHECKIN_STEPS = ['yesterday', 'feeling', 'tomorrow', 'time', 'bodyfeel'];
+
+function startCheckin() {
+  state.currentCheckin = {
+    yesterdayMode: null, // 'as_recommended' | 'custom'
+    yesterday: null, // type
+    yesterdayExercises: null, // for gym
+    feeling: null,
+    tomorrow: null,
+    time: null,
+    bodyFeel: [],
+    step: 0
+  };
+  openModal('checkin-modal');
+  renderCheckinStep();
+}
+
+function closeCheckin() {
+  closeModal('checkin-modal');
+  state.currentCheckin = null;
+}
+
+function renderCheckinProgress() {
+  const container = document.getElementById('checkin-progress');
+  const step = state.currentCheckin.step;
+  container.innerHTML = CHECKIN_STEPS.map((s, i) => `
+    <div class="progress-step ${i === step ? 'active' : i < step ? 'completed' : ''}"></div>
+  `).join('');
+}
+
+function renderCheckinStep() {
+  const cc = state.currentCheckin;
+  renderCheckinProgress();
+  const body = document.getElementById('checkin-body');
+  const footer = document.getElementById('checkin-footer');
+
+  switch (CHECKIN_STEPS[cc.step]) {
+    case 'yesterday': renderYesterdayStep(body, footer); break;
+    case 'feeling': renderFeelingStep(body, footer); break;
+    case 'tomorrow': renderTomorrowStep(body, footer); break;
+    case 'time': renderTimeStep(body, footer); break;
+    case 'bodyfeel': renderBodyfeelStep(body, footer); break;
+  }
+}
+
+function renderYesterdayStep(body, footer) {
+  const cc = state.currentCheckin;
+  const yesterdayDate = dateISO(-1);
+  const lastRec = state.history.find(h => h.date === yesterdayDate && h.recommended);
+
+  // Check if we have a previous recommendation that wasn't yet logged
+  const yesterdayEntry = state.history.find(h => h.date === yesterdayDate);
+  const showAsRecommended = !yesterdayEntry && state.currentRecommendation &&
+    state.currentRecommendation.date === yesterdayDate && state.recommendationTaken;
+
+  let html = `
+    <div class="question active">
+      <div class="question-label">Otázka 1 z 5</div>
+      <div class="question-title">Co bylo včera?</div>
+      <div class="question-help">${formatLongDate(yesterdayDate)}</div>
+  `;
+
+  if (showAsRecommended) {
+    const recExNames = state.currentRecommendation.exercises.map(e => EXERCISES[e].name).join(', ');
+    html += `
+      <div class="option-grid" style="margin-bottom: 16px;">
+        <button class="option-btn ${cc.yesterdayMode === 'as_recommended' ? 'selected' : ''}" onclick="selectYesterdayMode('as_recommended')">
+          <span class="option-icon">✓</span>
+          <div>
+            <div>Podle doporučení</div>
+            <div style="font-size: 12px; color: var(--text-tertiary); font-weight: 500; margin-top: 2px;">${recExNames}</div>
+          </div>
+        </button>
+        <button class="option-btn ${cc.yesterdayMode === 'custom' ? 'selected' : ''}" onclick="selectYesterdayMode('custom')">
+          <span class="option-icon">↻</span>
+          Bylo to jinak
+        </button>
+      </div>
+    `;
+  }
+
+  if (!showAsRecommended || cc.yesterdayMode === 'custom') {
+    html += `<div class="option-grid">`;
+    Object.entries(ACTIVITY_TYPES).forEach(([key, info]) => {
+      if (key === 'e_block' || key === 'f_block') return; // tyto se vybírají přes "gym"
+      const selected = cc.yesterday === key;
+      html += `
+        <button class="option-btn ${selected ? 'selected' : ''}" onclick="selectYesterday('${key}')">
+          <span class="option-icon">${info.icon}</span>
+          ${info.label}
+        </button>
+      `;
+    });
+    html += `</div>`;
+
+    if (cc.yesterday === 'gym') {
+      html += renderGymPicker();
+    }
+  }
+
+  html += `</div>`;
+  body.innerHTML = html;
+
+  // Footer: Pokračovat jen pokud gym + vybrané cviky (ostatní auto-advance)
+  const isGymWithExercises = cc.yesterday === 'gym' && cc.yesterdayExercises && cc.yesterdayExercises.length > 0;
+  if (isGymWithExercises) {
+    footer.innerHTML = `<button class="btn-primary" onclick="nextCheckinStep()">Pokračovat</button>`;
+  } else {
+    footer.innerHTML = ``;
+  }
+}
+
+function selectYesterdayMode(mode) {
+  state.currentCheckin.yesterdayMode = mode;
+  if (mode === 'as_recommended') {
+    state.currentCheckin.yesterday = state.currentRecommendation.type;
+    state.currentCheckin.yesterdayExercises = [...state.currentRecommendation.exercises];
+    setTimeout(() => nextCheckinStep(), 150);
+    return;
+  }
+  state.currentCheckin.yesterday = null;
+  state.currentCheckin.yesterdayExercises = null;
+  renderCheckinStep();
+}
+
+function selectYesterday(type) {
+  state.currentCheckin.yesterday = type;
+  if (type !== 'gym') {
+    state.currentCheckin.yesterdayExercises = null;
+    setTimeout(() => nextCheckinStep(), 150);
+    return;
+  }
+  // gym — uživatel musí vybrat cviky, žádný auto-advance
+  renderCheckinStep();
+}
+
+function renderGymPicker() {
+  const cc = state.currentCheckin;
+  const selected = cc.yesterdayExercises || [];
+
+  const groups = [
+    { title: 'Hlavní compound', ids: ['drep', 'deadlift', 'bulhar', 'ohp', 'incline', 'row'] },
+    { title: 'Body weight', ids: ['dipy', 'pullup', 'chinup', 'pushup'] },
+    { title: 'Accessory', ids: ['hyper', 'facepull'] },
+    { title: 'Kettlebell (E blok)', ids: E_BLOCK },
+    { title: 'Landmine (F blok)', ids: F_BLOCK }
+  ];
+
+  let html = `<div class="gym-picker-categories" style="margin-top: 16px;">`;
+  for (const g of groups) {
+    html += `<div><div class="gym-cat-title">${g.title}</div><div class="multi-grid">`;
+    for (const id of g.ids) {
+      const ex = EXERCISES[id];
+      if (!ex) continue;
+      const isSelected = selected.includes(id);
+      html += `
+        <button class="multi-btn ${isSelected ? 'selected' : ''}" onclick="toggleGymExercise('${id}')">
+          <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          ${ex.name}
+        </button>
+      `;
+    }
+    html += `</div></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function toggleGymExercise(id) {
+  const cc = state.currentCheckin;
+  if (!cc.yesterdayExercises) cc.yesterdayExercises = [];
+  const idx = cc.yesterdayExercises.indexOf(id);
+  if (idx >= 0) {
+    cc.yesterdayExercises.splice(idx, 1);
+  } else {
+    cc.yesterdayExercises.push(id);
+  }
+  renderCheckinStep();
+}
+
+function renderFeelingStep(body, footer) {
+  const cc = state.currentCheckin;
+  const labels = ['svěží', 'fajn', 'průměr', 'unavený', 'vyřízený'];
+  const emojis = ['🟢', '🟢', '🟡', '🟠', '🔴'];
+
+  body.innerHTML = `
+    <div class="question active">
+      <div class="question-label">Otázka 2 z 5</div>
+      <div class="question-title">Jak se cítíš?</div>
+      <div class="question-help">Ranní pocit, ne jak ti bylo včera večer.</div>
+      <div class="feeling-scale">
+        ${[1, 2, 3, 4, 5].map(n => `
+          <button class="feeling-btn ${cc.feeling === n ? 'selected' : ''}" onclick="selectFeeling(${n})">
+            <span class="feeling-num">${n}</span>
+            <span class="feeling-emoji">${emojis[n - 1]}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="feeling-labels">
+        <span>Svěží</span>
+        <span>Vyřízený</span>
+      </div>
+    </div>
+  `;
+
+  const canProceed = cc.feeling !== null;
+  footer.innerHTML = `
+    <button class="btn-secondary" onclick="prevCheckinStep()">Zpět</button>
+  `;
+}
+
+function selectFeeling(n) {
+  state.currentCheckin.feeling = n;
+  setTimeout(() => nextCheckinStep(), 150);
+}
+
+function renderTomorrowStep(body, footer) {
+  const cc = state.currentCheckin;
+  const options = [
+    { key: 'rest', label: 'Volno', icon: '🌙' },
+    { key: 'sport', label: 'Sport (inline / florbal)', icon: '🏑' },
+    { key: 'unknown', label: 'Nevím', icon: '?' }
+  ];
+
+  body.innerHTML = `
+    <div class="question active">
+      <div class="question-label">Otázka 3 z 5</div>
+      <div class="question-title">Co tě čeká zítra?</div>
+      <div class="question-help">Pokud bude zítra sport, dnes vynechá ty cviky, které by ho narušily.</div>
+      <div class="option-grid">
+        ${options.map(o => `
+          <button class="option-btn ${cc.tomorrow === o.key ? 'selected' : ''}" onclick="selectTomorrow('${o.key}')">
+            <span class="option-icon">${o.icon}</span>
+            ${o.label}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  footer.innerHTML = `
+    <button class="btn-secondary" onclick="prevCheckinStep()">Zpět</button>
+  `;
+}
+
+function selectTomorrow(key) {
+  state.currentCheckin.tomorrow = key;
+  setTimeout(() => nextCheckinStep(), 150);
+}
+
+function renderTimeStep(body, footer) {
+  const cc = state.currentCheckin;
+  body.innerHTML = `
+    <div class="question active">
+      <div class="question-label">Otázka 4 z 5</div>
+      <div class="question-title">Máš dnes víc času?</div>
+      <div class="question-help">Default je 30 min. Když máš 45 min, přidá se accessory cvik.</div>
+      <div class="option-grid">
+        <button class="option-btn ${cc.time === 30 ? 'selected' : ''}" onclick="selectTime(30)">
+          <span class="option-icon">⏱</span>
+          Ne — 30 minut
+        </button>
+        <button class="option-btn ${cc.time === 45 ? 'selected' : ''}" onclick="selectTime(45)">
+          <span class="option-icon">⏱</span>
+          Ano — 45 minut
+        </button>
+      </div>
+    </div>
+  `;
+
+  footer.innerHTML = `
+    <button class="btn-secondary" onclick="prevCheckinStep()">Zpět</button>
+  `;
+}
+
+function selectTime(t) {
+  state.currentCheckin.time = t;
+  setTimeout(() => nextCheckinStep(), 150);
+}
+
+function renderBodyfeelStep(body, footer) {
+  const cc = state.currentCheckin;
+  const parts = [
+    { key: 'bedra', label: 'Bedra' },
+    { key: 'hams', label: 'Hams' },
+    { key: 'koleno', label: 'Koleno' },
+    { key: 'rameno', label: 'Rameno' },
+    { key: 'loket', label: 'Loket / zápěstí' }
+  ];
+
+  body.innerHTML = `
+    <div class="question active">
+      <div class="question-label">Otázka 5 z 5</div>
+      <div class="question-title">Cítíš něco specifického?</div>
+      <div class="question-help">Vyber cokoli, co dnes ráno cítíš nebo co se mi nezdá. Cviky, které partii zatěžují, vypadnou z dnešního výběru.</div>
+      <div class="multi-grid">
+        ${parts.map(p => {
+          const sel = cc.bodyFeel.includes(p.key);
+          return `
+            <button class="multi-btn ${sel ? 'selected' : ''}" onclick="toggleBodyfeel('${p.key}')">
+              <span class="check"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              ${p.label}
+            </button>
+          `;
+        }).join('')}
+      </div>
+      <div style="margin-top: 12px; font-size: 13px; color: var(--text-tertiary);">
+        Pokud nic, nech prázdné a pokračuj.
+      </div>
+    </div>
+  `;
+
+  footer.innerHTML = `
+    <button class="btn-secondary" onclick="prevCheckinStep()">Zpět</button>
+    <button class="btn-primary" onclick="nextCheckinStep()">Spočítat doporučení</button>
+  `;
+}
+
+function toggleBodyfeel(key) {
+  const cc = state.currentCheckin;
+  const idx = cc.bodyFeel.indexOf(key);
+  if (idx >= 0) cc.bodyFeel.splice(idx, 1);
+  else cc.bodyFeel.push(key);
+  renderCheckinStep();
+}
+
+function nextCheckinStep() {
+  state.currentCheckin.step++;
+  if (state.currentCheckin.step >= CHECKIN_STEPS.length) {
+    finishCheckin();
+    return;
+  }
+  renderCheckinStep();
+}
+
+function prevCheckinStep() {
+  state.currentCheckin.step--;
+  renderCheckinStep();
+}
+
+/* ========================================
+   FINISH CHECK-IN — SAVE YESTERDAY + GENERATE
+   ======================================== */
+function finishCheckin() {
+  const cc = state.currentCheckin;
+
+  // Save yesterday entry to history (overwrites any existing one)
+  const yesterdayDate = dateISO(-1);
+  const yEntry = {
+    date: yesterdayDate,
+    type: cc.yesterday,
+    exercises: cc.yesterdayExercises || []
+  };
+  // Detect E/F block
+  if (cc.yesterday === 'gym' && cc.yesterdayExercises && cc.yesterdayExercises.length === 4) {
+    if (cc.yesterdayExercises.every(id => E_BLOCK.includes(id))) yEntry.type = 'e_block';
+    if (cc.yesterdayExercises.every(id => F_BLOCK.includes(id))) yEntry.type = 'f_block';
+  }
+  addHistoryEntry(yEntry);
+
+  // Generate today's recommendation
+  const rec = generateRecommendation(cc);
+  state.currentRecommendation = {
+    date: todayISO(),
+    title: rec.title,
+    type: rec.type,
+    exercises: rec.exercises,
+    reason: rec.reason,
+    intensity: rec.intensity,
+    softMode: rec.softMode,
+    originalCheckin: { ...cc },
+    triedAlternatives: []
+  };
+  state.recommendationTaken = false;
+  saveState();
+
+  // Close check-in modal, open recommendation
+  state.currentCheckin = null;
+  closeModal('checkin-modal');
+  setTimeout(() => {
+    render();
+    openRecommendation();
+  }, 280);
+}
+
+/* ========================================
+   RECOMMENDATION ENGINE
+   ======================================== */
+function generateRecommendation(cc) {
+  const yesterday = cc.yesterday;
+  const feeling = cc.feeling;
+  const tomorrow = cc.tomorrow;
+  const time = cc.time;
+  const bodyFeel = cc.bodyFeel || [];
+
+  // 1. Detect signals (soft mode triggers)
+  const softMode = detectSoftMode(cc);
+
+  // 2. Determine "what's allowed" based on yesterday + feeling + bodyFeel
+  const allowedExercises = filterAllowedExercises(yesterday, feeling, tomorrow, bodyFeel, softMode);
+
+  // 3. Check feeling = 5 → propose stretching
+  if (feeling === 5) {
+    return {
+      title: 'Protahování / Mobilita',
+      type: 'stretching',
+      exercises: [],
+      reason: 'Pocit "vyřízený" znamená, že silový stimul dnes nemá smysl. Mobilita kyčlí, hrudní páteře, ramen + lehký strečink. Asi 25 minut.',
+      intensity: 'lehce',
+      softMode
+    };
+  }
+
+  // 4. Vždy zkusit ad-hoc mix nejdřív (preference hlavních cviků před bloky)
+  const adHoc = buildAdHocRecommendation(allowedExercises, cc, softMode);
+
+  // F blok jako fallback — když ad-hoc mix nemá dost cviků (typicky když specifický pocit těla
+  // vyřadil hodně cviků a zůstaly jen landmine/upper kategorie 1)
+  if (adHoc.exercises.length < 2) {
+    return buildBlockRecommendation('F', cc, softMode);
+  }
+
+  return adHoc;
+}
+
+function detectSoftMode(cc) {
+  // Signal 1: 3 days in row feeling >= 4
+  const last3 = state.history.slice(0, 3);
+  const sig1 = last3.length >= 2 && last3.filter(h => h.feeling >= 4).length >= 2 && cc.feeling >= 4;
+
+  // Signal 2: Specific body feel (any) + same feeling for several days — partial
+  // We don't track yet, just check today's bodyFeel
+  const sig3 = cc.bodyFeel && cc.bodyFeel.length > 0;
+
+  // Signal 4: 2 sport days in a row + feeling >= 4
+  const sportTypes = ['inline_tempo', 'florbal'];
+  const last2 = state.history.slice(0, 2);
+  const sig5 = last2.filter(h => sportTypes.includes(h.type)).length >= 2 && cc.feeling >= 4;
+
+  return sig1 || sig5 || (sig3 && cc.feeling >= 3);
+}
+
+function filterAllowedExercises(yesterday, feeling, tomorrow, bodyFeel, softMode) {
+  const result = {};
+  for (const [id, ex] of Object.entries(EXERCISES)) {
+    let allowed = true;
+    let reason = '';
+
+    // Block-only exercises only in their blocks
+    if (BLOCK_ONLY.has(id)) {
+      allowed = false;
+      reason = 'jen v bloku';
+    }
+
+    // Body feel — strict prohibitions
+    if (allowed && bodyFeel.includes('bedra') && ['drep', 'deadlift', 'bulhar', 'hyper'].includes(id)) {
+      allowed = false;
+      reason = 'bedra';
+    }
+    if (allowed && bodyFeel.includes('hams') && ['deadlift', 'bulhar'].includes(id)) {
+      allowed = false;
+      reason = 'hams';
+    }
+    if (allowed && bodyFeel.includes('koleno') && ['drep', 'bulhar'].includes(id)) {
+      allowed = false;
+      reason = 'koleno';
+    }
+    if (allowed && bodyFeel.includes('rameno') && ['ohp', 'dipy', 'pullup'].includes(id)) {
+      allowed = false;
+      reason = 'rameno';
+    }
+    if (allowed && bodyFeel.includes('loket') && ['pullup', 'dipy'].includes(id)) {
+      allowed = false;
+      reason = 'loket';
+    }
+
+    // Yesterday-based filtering
+    if (allowed) {
+      // Cat 3 (Dřep, Deadlift) — only after rest, easy inline (with feeling), gym light, stretching
+      if (ex.cat === 3) {
+        if (yesterday === 'florbal' || yesterday === 'inline_tempo') { allowed = false; reason = 'po sportu'; }
+        if (yesterday === 'inline_easy' && feeling > 3) { allowed = false; reason = 'inline + pocit'; }
+      }
+      // Cat 2 spodek — Bulhar, KB swing, Goblet, Hyper
+      if (allowed && ex.cat === 2 && ex.subcat === 'spodek') {
+        if (yesterday === 'florbal' || yesterday === 'inline_tempo') { allowed = false; reason = 'po sportu'; }
+      }
+      // Cat 2 vršek — Barbell row
+      if (allowed && ex.cat === 2 && ex.subcat === 'vrsek') {
+        // Allowed but with caution after sport
+      }
+    }
+
+    // Tomorrow is sport — no Cat 3 + no Bulhar
+    if (allowed && tomorrow === 'sport' && (ex.cat === 3 || id === 'bulhar')) {
+      allowed = false;
+      reason = 'zítra sport';
+    }
+
+    // Soft mode — disable Cat 3
+    if (allowed && softMode && ex.cat === 3) {
+      allowed = false;
+      reason = 'soft mode';
+    }
+
+    // Slot already covered yesterday strongly — skip same slot
+    const yEntry = state.history.find(h => h.date === dateISO(-1));
+    if (allowed && yEntry && yEntry.exercises) {
+      const yesterdaySlots = new Set();
+      for (const yId of yEntry.exercises) {
+        const yEx = EXERCISES[yId];
+        if (yEx && yEx.coverage === 'full') yesterdaySlots.add(yEx.slot);
+      }
+      if (yesterdaySlots.has(ex.slot) && ex.coverage === 'full') {
+        allowed = false;
+        reason = 'slot včera pokryt';
+      }
+    }
+
+    result[id] = { allowed, reason };
+  }
+  return result;
+}
+
+function decideBlock(yesterday, feeling, bodyFeel) {
+  const last7 = getLast7Days();
+  const fBlockCount = last7.filter(h => h.type === 'f_block').length;
+  const eBlockCount = last7.filter(h => h.type === 'e_block').length;
+
+  // F block — after sport or heavy gym, when upper recovery makes sense
+  const wasSport = yesterday === 'florbal' || yesterday === 'inline_tempo';
+  const wasHeavyGym = yesterday === 'gym'; // approximation
+
+  if (wasSport && fBlockCount === 0 && feeling <= 4) {
+    return 'F';
+  }
+
+  // E block — only after rest or easy/light, never after sport or heavy
+  const wasRestOrLight = yesterday === 'rest' || yesterday === 'inline_easy' || yesterday === 'stretching';
+  const noBodyFeelBlocking = !bodyFeel.some(b => ['hams', 'bedra', 'koleno'].includes(b));
+
+  if (wasRestOrLight && eBlockCount === 0 && feeling <= 3 && noBodyFeelBlocking) {
+    // Only suggest E if body feels good and we haven't done it recently
+    // Be selective — random ~30% chance to prefer ad-hoc
+    if (Math.random() < 0.4) return 'E';
+  }
+
+  return null;
+}
+
+function buildBlockRecommendation(blockType, cc, softMode) {
+  const exercises = blockType === 'F' ? F_BLOCK : E_BLOCK;
+  const title = blockType === 'F' ? 'Landmine den (F)' : 'Kettlebell den (E)';
+
+  let reason = '';
+  if (blockType === 'F') {
+    if (cc.yesterday === 'florbal') reason = 'Po florbale je upper-body recovery to nejlepší. Landmine drží integritu, žádné nárazy na nohy nebo bedra.';
+    else if (cc.yesterday === 'inline_tempo') reason = 'Po inline s tempem zatížíme jen vršek. Landmine den drží integritu kategorie 1.';
+    else if (cc.yesterday === 'gym') reason = 'Po těžkém gymu si vršek zaslouží lehčí kvalitní stimul. Landmine den nepřetíží CNS ani bedra.';
+    else reason = 'Pocit + bilance dnes ladí na lehčí upper-body session. Landmine den drží integritu jako celek.';
+  } else {
+    // E block — různé reasony podle kontextu
+    const wasSport = cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo';
+    if (wasSport) {
+      reason = 'Po sportu E blok funguje, jen pokud jsou nohy fresh (pocit svěží/fajn). Swing a goblet ber lehčí, krátké série, žádné explozivní hrdinství. Carry a halo bezpečně vždy.';
+    } else if (cc.yesterday === 'gym') {
+      reason = 'Den po gymu kettlebell jako sportovní recovery — swing, goblet, carry doplňují to, co compound dny nedělají (mobilita ramene, anti-lateral core).';
+    } else {
+      reason = 'Tělo je fresh, sloty pro core a posterior chain potřebují stimul. Kettlebell den s explozivním swingem, gobletem a carry je sportovně hodnotný a integruje vše do jedné session.';
+    }
+  }
+
+  // Time-adjusted: if 45 min, add accessory bonus
+  let finalExercises = [...exercises];
+  if (cc.time === 45) {
+    // Add a relevant accessory not in the block
+    if (blockType === 'F') {
+      finalExercises.push('facepull'); // bonus retraktory
+    } else {
+      // E block doesn't need bonus easily, leave 4
+    }
+  }
+
+  return {
+    title,
+    type: blockType === 'F' ? 'f_block' : 'e_block',
+    exercises: finalExercises,
+    reason,
+    intensity: 'lehce',
+    softMode
+  };
+}
+
+function buildAdHocRecommendation(allowedMap, cc, softMode) {
+  const time = cc.time;
+  const targetCount = time === 45 ? 4 : 3;
+  // No body feel + good feeling = compound day; otherwise upper day
+  const allowsLegCompound = ['drep', 'deadlift', 'bulhar'].some(id => allowedMap[id]?.allowed);
+
+  // Determine balance gaps (priority: hinge > squat > vertical pull > vertical push > horizontal > posterior > core)
+  const balance = calculateBalance();
+  const slotPriority = ['hinge', 'squat', 'vertical_pull', 'vertical_push', 'horizontal_push', 'horizontal_pull', 'posterior_aux'];
+  const gaps = [];
+  for (const sid of slotPriority) {
+    const s = balance[sid];
+    if (!s) continue;
+    if (s.count === 0 && s.partialCount === 0) gaps.push({ slot: sid, severity: 2 });
+    else if (s.count === 0 && s.partialCount > 0) gaps.push({ slot: sid, severity: 1 });
+    else if (s.count >= 2) {} // already covered well
+    else gaps.push({ slot: sid, severity: 0 });
+  }
+
+  // Build session
+  const selected = [];
+  const usedSlots = new Set();
+  const usedGroups = new Set();
+
+  const pickFromSlot = (slotId) => {
+    const slot = SLOTS.find(s => s.id === slotId);
+    if (!slot) return null;
+    for (const exId of slot.exercises) {
+      if (selected.includes(exId)) continue;
+      if (!allowedMap[exId]?.allowed) continue;
+      const ex = EXERCISES[exId];
+      if (ex.group === 'leg_compound' && usedGroups.has('leg_compound')) continue;
+      // Prefer Bulhar over Drep if no leg compound used yet AND bodyFeel issues
+      return exId;
+    }
+    return null;
+  };
+
+  // Step 1: Try to fill 1 leg compound slot if allowed and not soft mode tomorrow-sport
+  if (allowsLegCompound && cc.tomorrow !== 'sport') {
+    const legSlots = ['squat', 'hinge'];
+    // Pick the one with bigger gap
+    legSlots.sort((a, b) => {
+      const gA = gaps.find(g => g.slot === a)?.severity || 0;
+      const gB = gaps.find(g => g.slot === b)?.severity || 0;
+      return gB - gA;
+    });
+    for (const sId of legSlots) {
+      const picked = pickFromSlot(sId);
+      if (picked) {
+        selected.push(picked);
+        usedSlots.add(sId);
+        usedGroups.add('leg_compound');
+        break;
+      }
+    }
+  }
+
+  // Step 2: Pick 1 push (vertical or horizontal)
+  const pushSlots = ['vertical_push', 'horizontal_push'];
+  pushSlots.sort((a, b) => {
+    const gA = gaps.find(g => g.slot === a)?.severity || 0;
+    const gB = gaps.find(g => g.slot === b)?.severity || 0;
+    return gB - gA;
+  });
+  for (const sId of pushSlots) {
+    if (usedSlots.has(sId)) continue;
+    const picked = pickFromSlot(sId);
+    if (picked) {
+      selected.push(picked);
+      usedSlots.add(sId);
+      usedGroups.add('upper_push');
+      break;
+    }
+  }
+
+  // Step 3: Pick 1 pull (vertical or horizontal)
+  const pullSlots = ['vertical_pull', 'horizontal_pull'];
+  pullSlots.sort((a, b) => {
+    const gA = gaps.find(g => g.slot === a)?.severity || 0;
+    const gB = gaps.find(g => g.slot === b)?.severity || 0;
+    return gB - gA;
+  });
+  for (const sId of pullSlots) {
+    if (usedSlots.has(sId)) continue;
+    const picked = pickFromSlot(sId);
+    if (picked) {
+      selected.push(picked);
+      usedSlots.add(sId);
+      usedGroups.add('upper_pull');
+      break;
+    }
+  }
+
+  // Step 4: If we don't have 3 yet, fill with another upper compound or accessory
+  while (selected.length < 3) {
+    let picked = null;
+    // Try any remaining slot with gap
+    for (const g of gaps) {
+      if (usedSlots.has(g.slot)) continue;
+      const p = pickFromSlot(g.slot);
+      if (p) { picked = p; usedSlots.add(g.slot); break; }
+    }
+    if (!picked) {
+      // Pick any allowed accessory
+      for (const exId of ['facepull', 'hyper', 'incline', 'pushup', 'chinup', 'pullup', 'dipy']) {
+        if (selected.includes(exId)) continue;
+        if (!allowedMap[exId]?.allowed) continue;
+        picked = exId;
+        break;
+      }
+    }
+    if (!picked) break;
+    selected.push(picked);
+  }
+
+  // Step 5: 45 min — add 4th cvik
+  if (time === 45 && selected.length < 4) {
+    for (const exId of ['facepull', 'hyper', 'incline', 'chinup', 'pushup']) {
+      if (selected.includes(exId)) continue;
+      if (!allowedMap[exId]?.allowed) continue;
+      // Don't add same group again
+      const ex = EXERCISES[exId];
+      if (ex.group === 'leg_compound') continue;
+      selected.push(exId);
+      break;
+    }
+  }
+
+  // Build reason
+  const gapNames = gaps.filter(g => g.severity >= 1).map(g => SLOTS.find(s => s.id === g.slot).name);
+  let reason = '';
+  if (cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo') {
+    reason = `Po sportu jen kategorie 1 — vršek, žádné nohy. ${gapNames.length > 0 ? `V bilanci chybí ${gapNames[0]}, dnes pokryjeme.` : ''}`;
+  } else if (cc.yesterday === 'rest' || cc.yesterday === 'stretching') {
+    reason = `Tělo je odpočinuté, jdeme naplno. ${gapNames.length > 0 ? `Bilance prosí ${gapNames.slice(0, 2).join(' + ')}.` : 'Bilance je v pohodě.'}`;
+  } else if (cc.yesterday === 'inline_easy') {
+    reason = `Po klidném inlinu tělo zvládne kvalitní stimul. ${gapNames.length > 0 ? `Prioritní slot: ${gapNames[0]}.` : ''}`;
+  } else if (cc.yesterday === 'gym') {
+    reason = `Po včerejším gymu vybíráme jiné sloty. ${gapNames.length > 0 ? `Dnes hlavně ${gapNames.slice(0, 2).join(' + ')}.` : ''}`;
+  } else {
+    reason = `Den postavený podle aktuální bilance a stavu těla.`;
+  }
+  if (softMode) reason += ' Pozn.: bere se v úvahu únava, intenzita je tlumená.';
+
+  // Determine intensity
+  let intensity = 'středně';
+  if (cc.feeling === 1) intensity = 'těžce';
+  else if (cc.feeling === 2) intensity = 'středně';
+  else if (cc.feeling === 3) intensity = 'středně';
+  else intensity = 'lehce';
+  if (softMode) intensity = 'lehce';
+  if (cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo') {
+    if (intensity === 'těžce') intensity = 'středně';
+  }
+
+  // Title
+  const hasLeg = selected.some(id => EXERCISES[id].group === 'leg_compound');
+  let title = '';
+  if (selected.length === 0) {
+    title = 'Není co doporučit';
+    reason = 'Stav těla a sloty se nesetkávají. Doporučuji volno nebo krátké protahování.';
+  } else if (hasLeg) {
+    title = 'Compound mix';
+  } else {
+    title = 'Upper / accessory mix';
+  }
+
+  return {
+    title,
+    type: 'gym',
+    exercises: selected,
+    reason,
+    intensity,
+    softMode
+  };
+}
+
+/* ========================================
+   RECOMMENDATION DISPLAY
+   ======================================== */
+function openRecommendation() {
+  if (!state.currentRecommendation) return;
+  renderRecommendation();
+  openModal('recommendation-modal');
+}
+
+function closeRecommendation() {
+  closeModal('recommendation-modal');
+}
+
+function renderRecommendation() {
+  const r = state.currentRecommendation;
+  const body = document.getElementById('recommendation-body');
+
+  if (r.type === 'stretching') {
+    body.innerHTML = `
+      <div class="recommendation active">
+        <div class="hero-label">Dnešní doporučení</div>
+        <div class="question-title" style="margin-bottom: 8px;">${r.title}</div>
+        <div class="rec-reason">${r.reason}</div>
+        <div class="exercise-card" style="margin-bottom: 20px;">
+          <div class="exercise-name">Mobilita + lehký strečink</div>
+          <div class="exercise-meta">
+            <span>~25 minut</span>
+          </div>
+          <div class="exercise-note">Konkrétní cviky doladíme později. Pro dnešek: kyčle (90/90, couch stretch), hrudní páteř (open book), ramena (doorway), strečink hams a adduktorů.</div>
+        </div>
+        <div class="rec-actions">
+          ${state.recommendationTaken ? '<div style="text-align:center; padding: 12px; color: var(--status-good); font-weight: 600;">✓ Označeno jako splněné</div>' : `
+          <button class="btn-primary" onclick="acceptRecommendation()">Beru to</button>
+          ${hasNextAlternative(r) ? `<button class="btn-secondary" onclick="requestAlternative()" style="width: 100%;">Dej alternativu</button>` : ''}
+          `}
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const intensityClass = r.intensity === 'těžce' ? 'intensity-heavy' : r.intensity === 'středně' ? 'intensity-medium' : 'intensity-light';
+  const intensityPct = r.intensity === 'těžce' ? '~85 %' : r.intensity === 'středně' ? '~75 %' : '~65–70 %';
+
+  const exerciseCards = r.exercises.map((id, i) => {
+    const ex = EXERCISES[id];
+    if (!ex) return '';
+    const showPct = !['kbswing', 'goblet', 'carry', 'halo', 'lmpress', 'lmrow', 'lmrot', 'pallof', 'pullup', 'chinup', 'dipy', 'pushup', 'facepull', 'hyper'].includes(id);
+    return `
+      <div class="exercise-card">
+        <div class="exercise-num">${i + 1}</div>
+        <div class="exercise-name">${ex.name}</div>
+        <div class="exercise-meta">
+          <span class="exercise-meta-item"><span class="exercise-meta-num">${ex.sets}</span> série</span>
+          <span class="exercise-meta-item"><span class="exercise-meta-num">${ex.reps}</span> opakování</span>
+        </div>
+        <div class="intensity-badge ${intensityClass}">${r.intensity}${showPct ? ` · ${intensityPct} 1RM` : ''}</div>
+      </div>
+    `;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="recommendation active">
+      <div class="hero-label">Dnešní doporučení</div>
+      <div class="question-title" style="margin-bottom: 8px;">${r.title}</div>
+      <div class="rec-reason">${r.reason}</div>
+      <div class="exercise-list">${exerciseCards}</div>
+      <div class="rec-actions">
+        ${state.recommendationTaken ? `
+          <div style="text-align:center; padding: 12px; color: var(--status-good); font-weight: 600;">
+            ✓ Označeno jako splněné
+          </div>
+        ` : `
+          <button class="btn-primary" onclick="acceptRecommendation()">Beru to</button>
+          ${hasNextAlternative(r) ? `<button class="btn-secondary" onclick="requestAlternative()" style="width: 100%;">Dej alternativu</button>` : ''}
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function acceptRecommendation() {
+  const r = state.currentRecommendation;
+  // Save today's entry to history
+  const todayEntry = {
+    date: todayISO(),
+    type: r.type,
+    exercises: r.exercises,
+    feeling: state.currentCheckin?.feeling || null,
+    recommended: true
+  };
+  addHistoryEntry(todayEntry);
+  state.recommendationTaken = true;
+  saveState();
+  showToast('Hotovo');
+  setTimeout(() => {
+    closeRecommendation();
+    render();
+  }, 800);
+}
+
+function hasNextAlternative(r) {
+  if (!r) return false;
+  // Vždy true pokud existuje aspoň 2 možné varianty (kruhové procházení)
+  return getAvailableAlternatives(r.originalCheckin).length >= 2;
+}
+
+function getAvailableAlternatives(cc) {
+  const order = ['compound_mix', 'upper_only', 'f_block', 'e_block', 'stretching'];
+  return order.filter(k => isAlternativePossible(k, cc));
+}
+
+function getRecommendationKind(r) {
+  if (r.type === 'stretching') return 'stretching';
+  if (r.type === 'f_block') return 'f_block';
+  if (r.type === 'e_block') return 'e_block';
+  // ad-hoc gym — distinguish compound vs. upper-only
+  const hasLeg = r.exercises.some(id => EXERCISES[id]?.group === 'leg_compound');
+  return hasLeg ? 'compound_mix' : 'upper_only';
+}
+
+function isAlternativePossible(kind, cc) {
+  if (kind === 'e_block') {
+    const wasSport = cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo';
+    const bodyBlocking = cc.bodyFeel.some(b => ['hams', 'bedra', 'koleno'].includes(b));
+    if (bodyBlocking) return false;
+    // Po sportu E blok jen pokud pocit svěží/fajn (1-2)
+    if (wasSport && cc.feeling > 2) return false;
+    // Bez sportu standardní pravidlo: pocit ≤ 3
+    if (!wasSport && cc.feeling > 3) return false;
+  }
+  if (kind === 'compound_mix') {
+    const wasSport = cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo';
+    const bodyBlocking = cc.bodyFeel.some(b => ['hams', 'bedra', 'koleno'].includes(b));
+    if (wasSport || bodyBlocking || cc.tomorrow === 'sport') return false;
+  }
+  return true;
+}
+
+function pickNextAlternative(r) {
+  const available = getAvailableAlternatives(r.originalCheckin);
+  if (available.length === 0) return null;
+  if (available.length === 1) return null; // jen jedna možnost — žádná alternativa
+
+  const currentKind = getRecommendationKind(r);
+  const currentIdx = available.indexOf(currentKind);
+
+  // Kruhové procházení — když na konci, vrať se na začátek
+  const nextIdx = (currentIdx + 1) % available.length;
+  return available[nextIdx];
+}
+
+function getWhyNotPrevious(prevKind, currentKind) {
+  const map = {
+    // Forward (lehčí varianta)
+    'compound_mix→upper_only': 'Compound mix dnes klade na nohy další zátěž — upper-only odpočine quads i hams a stále trefí důležité sloty.',
+    'compound_mix→f_block': 'Místo compound mixu landmine den jako celek — lehčí intenzita, šetří CNS, trefí core a vršek.',
+    'compound_mix→e_block': 'Místo compound mixu kettlebell den — explozivní swing, goblet a carry jako sportovní celek místo izolovaného compoundu.',
+    'compound_mix→stretching': 'Compound dnes nedává smysl — regenerace pomůže víc než další zátěž.',
+    'upper_only→f_block': 'Upper ad-hoc by zvládl, ale landmine jako celek je čistší recovery — všechno pohromadě, kratší pauzy, méně decision fatigue.',
+    'upper_only→e_block': 'Místo upper ad-hoc kettlebell jako sportovní celek — swing, mobilita, carry pro další stimul.',
+    'upper_only→stretching': 'I upper ad-hoc je dnes přebytek — regenerace má větší hodnotu než další silový den.',
+    'f_block→e_block': 'Místo landmine kettlebell — jiný typ stimulu, sportovnější, posterior chain přes swing.',
+    'f_block→stretching': 'I landmine den je dnes přebytek — jen mobilita.',
+    'e_block→stretching': 'I kettlebell je přebytek — jen mobilita.',
+    // Backward / kruh (z lehčí na těžší = vrácení se)
+    'stretching→compound_mix': 'Vracíme se na původní compound mix. Pokud cítíš, že silový den dáš, jdi do toho.',
+    'stretching→upper_only': 'Vracíme se na upper-only mix. Vršek bez zátěže nohou.',
+    'stretching→f_block': 'Vracíme se na landmine den jako sportovní celek.',
+    'stretching→e_block': 'Vracíme se na kettlebell den.',
+    'e_block→compound_mix': 'Z kettlebellu zpět na compound mix — silový stimul s váhami místo dynamického.',
+    'e_block→upper_only': 'Z kettlebellu zpět na upper-only ad-hoc mix.',
+    'e_block→f_block': 'Z kettlebellu na landmine — méně dynamiky, víc kontroly.',
+    'f_block→compound_mix': 'Z landmine zpět na compound mix — pokud máš na to, silový stimul je hodnotnější.',
+    'f_block→upper_only': 'Z landmine na upper-only ad-hoc — víc volnosti ve výběru cviků.',
+    'upper_only→compound_mix': 'Z upper-only na compound mix — pokud chceš zatížit i nohy.'
+  };
+  return map[`${prevKind}→${currentKind}`] || 'Jiná varianta dnešního tréninku.';
+}
+
+function buildAlternativeOfKind(kind, cc, softMode) {
+  if (kind === 'compound_mix' || kind === 'upper_only') {
+    // Re-build allowed exercises
+    const allowed = filterAllowedExercises(cc.yesterday, cc.feeling, cc.tomorrow, cc.bodyFeel, softMode);
+    if (kind === 'upper_only') {
+      // Force-disable leg compounds
+      ['drep', 'deadlift', 'bulhar'].forEach(id => {
+        if (allowed[id]) allowed[id] = { allowed: false, reason: 'upper-only mode' };
+      });
+    }
+    return buildAdHocRecommendation(allowed, cc, softMode);
+  }
+  if (kind === 'f_block') return buildBlockRecommendation('F', cc, softMode);
+  if (kind === 'e_block') return buildBlockRecommendation('E', cc, softMode);
+  if (kind === 'stretching') {
+    return {
+      title: 'Protahování / Mobilita',
+      type: 'stretching',
+      exercises: [],
+      reason: 'Mobilita kyčlí, hrudní páteře, ramen + lehký strečink. Asi 25 minut.',
+      intensity: 'lehce',
+      softMode: true
+    };
+  }
+}
+
+function requestAlternative() {
+  const r = state.currentRecommendation;
+  if (!r) return;
+
+  const currentKind = getRecommendationKind(r);
+  const next = pickNextAlternative(r);
+  if (!next) {
+    showToast('Jiná alternativa není.');
+    return;
+  }
+
+  const newRec = buildAlternativeOfKind(next, r.originalCheckin, r.softMode);
+
+  if (!newRec || (newRec.exercises.length === 0 && newRec.type !== 'stretching')) {
+    showToast('Tahle alternativa nedává smysl.');
+    return;
+  }
+
+  // Compose reason
+  const whyNotPrev = getWhyNotPrevious(currentKind, next);
+  const composedReason = `${newRec.reason}\n\nProč ne předchozí: ${whyNotPrev}`;
+
+  state.currentRecommendation = {
+    ...r,
+    title: newRec.title,
+    type: newRec.type,
+    exercises: newRec.exercises,
+    reason: composedReason,
+    intensity: newRec.intensity,
+    softMode: newRec.softMode
+  };
+  saveState();
+  renderRecommendation();
+  render();
+}
+
+function switchToStretching() {
+  state.currentRecommendation = {
+    date: todayISO(),
+    title: 'Protahování / Mobilita',
+    type: 'stretching',
+    exercises: [],
+    reason: 'Změna na protahování. Dnes mobility a strečink, žádný silový stimul.',
+    intensity: 'lehce',
+    softMode: true
+  };
+  saveState();
+  renderRecommendation();
+  render();
+}
+
+/* ========================================
+   FULL HISTORY VIEW
+   ======================================== */
+function openFullHistory() {
+  const body = document.getElementById('history-modal-body');
+  if (state.history.length === 0) {
+    body.innerHTML = `<div style="text-align:center; padding: 40px 20px; color: var(--text-tertiary);">Ještě žádná historie. Po prvním check-inu se začne plnit.</div>`;
+  } else {
+    body.innerHTML = `<div class="history-full">${state.history.map(h => `
+      <div class="history-full-day">
+        <div class="history-full-date">${formatLongDate(h.date)}</div>
+        <div class="history-full-content">${getActivityDescription(h)}</div>
+      </div>
+    `).join('')}</div>`;
+  }
+  openModal('history-modal');
+}
+
+function closeFullHistory() {
+  closeModal('history-modal');
+}
+
+/* ========================================
+   SLOT DETAIL
+   ======================================== */
+function showSlotDetail(slotId) {
+  const slot = SLOTS.find(s => s.id === slotId);
+  if (!slot) return;
+  const status = getSlotStatus(slotId);
+  const balance = calculateBalance();
+  const sBal = balance[slotId];
+
+  const body = document.getElementById('slot-modal-body');
+
+  let exerciseRows = '';
+  for (const exId of slot.exercises) {
+    const ex = EXERCISES[exId];
+    if (!ex) continue;
+    // Find last time this exercise was done
+    let lastDate = null;
+    for (const h of state.history) {
+      if (h.exercises && h.exercises.includes(exId)) {
+        lastDate = h.date;
+        break;
+      }
+    }
+    const lastText = lastDate ? `před ${daysAgo(lastDate)} dny` : 'nikdy';
+    exerciseRows += `
+      <div class="slot-detail-row">
+        <div class="slot-detail-name">${ex.name}</div>
+        <div class="slot-detail-time">${lastText}</div>
+      </div>
+    `;
+  }
+
+  let statusText = '';
+  if (status.status === 'good') statusText = `Pokryto ${status.count}× za 7 dní`;
+  else if (status.status === 'mid') statusText = 'Pokryto jen částečně (slabší cvik)';
+  else statusText = 'Chybí — žádný cvik za 7 dní';
+
+  body.innerHTML = `
+    <div class="slot-detail">
+      <h3>${slot.name} ${status.emoji}</h3>
+      <div class="subtitle">${statusText}</div>
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">Cviky pokrývající slot</div>
+      ${exerciseRows}
+    </div>
+  `;
+  openModal('slot-modal');
+}
+
+function closeSlotModal() {
+  closeModal('slot-modal');
+}
+
+/* ========================================
+   MODAL HELPERS
+   ======================================== */
+function openModal(id) {
+  document.getElementById('modal-overlay').classList.add('active');
+  setTimeout(() => {
+    document.getElementById(id).classList.add('active');
+  }, 10);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+  setTimeout(() => {
+    // Only close overlay if no other modal is open
+    const anyOpen = ['checkin-modal', 'recommendation-modal', 'history-modal', 'slot-modal']
+      .some(mid => document.getElementById(mid).classList.contains('active'));
+    if (!anyOpen) {
+      document.getElementById('modal-overlay').classList.remove('active');
+    }
+  }, 280);
+}
+
+function handleOverlayClick(e) {
+  if (e.target.id === 'modal-overlay') {
+    ['checkin-modal', 'recommendation-modal', 'history-modal', 'slot-modal'].forEach(closeModal);
+  }
+}
+
+/* ========================================
+   TOAST
+   ======================================== */
+function showToast(text) {
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('active');
+  setTimeout(() => t.classList.remove('active'), 1800);
+}
+
+/* ========================================
+   WELCOME / INIT
+   ======================================== */
+function completeWelcome() {
+  state.initialized = true;
+  saveState();
+  document.getElementById('welcome').classList.add('hidden');
+  document.getElementById('main').classList.remove('hidden');
+  render();
+}
+
+function init() {
+  loadState();
+  if (!state.initialized) {
+    document.getElementById('welcome').classList.remove('hidden');
+    document.getElementById('main').classList.add('hidden');
+  } else {
+    document.getElementById('welcome').classList.add('hidden');
+    document.getElementById('main').classList.remove('hidden');
+    render();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// Service Worker pro offline funkčnost
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((err) => {
+      console.log('SW registrace selhala:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
