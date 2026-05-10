@@ -258,6 +258,149 @@ button {
 /* ========================================
    BALANCE GRID
    ======================================== */
+/* ========================================
+   TRACKER CARDS (Z2, VO2max — battery style)
+   ======================================== */
+.tracker-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 8px;
+}
+
+.tracker-card:last-child {
+  margin-bottom: 0;
+}
+
+.tracker-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+}
+
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.tracker-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.tracker-meta-right {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+/* Battery-style bar */
+.tracker-battery {
+  position: relative;
+  height: 28px;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.tracker-battery-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--status-good);
+  border-radius: 6px;
+  transition: width 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  min-width: 0;
+}
+
+.tracker-battery-fill.empty {
+  background: transparent;
+}
+
+.tracker-battery-pct {
+  font-size: 13px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.tracker-battery-pct.outside {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  text-shadow: none;
+}
+
+.tracker-battery-pct.zero {
+  color: var(--text-tertiary);
+}
+
+.tracker-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.tracker-progress {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tracker-status {
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+/* Detail modal — events list */
+.tracker-detail-events {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.tracker-detail-event {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.tracker-detail-event-name {
+  font-weight: 600;
+}
+
+.tracker-detail-event-meta {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.tracker-detail-event-points {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .balance-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1027,6 +1170,14 @@ button {
     <!-- Hero Card -->
     <div id="hero-container"></div>
 
+    <!-- Cardio Trackers Section (Z2 + VO2max) -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Kardio</div>
+      </div>
+      <div id="cardio-trackers"></div>
+    </div>
+
     <!-- Balance Section -->
     <div class="section">
       <div class="section-header">
@@ -1151,12 +1302,33 @@ const ACTIVITY_TYPES = {
   stretching: { label: 'Protahování / Mobilita', icon: '🧘', color: 'tertiary' },
   inline_easy: { label: 'Inline klidně', icon: '🛼', color: 'good' },
   inline_tempo: { label: 'Inline s tempem', icon: '🛼', color: 'mid' },
-  florbal: { label: 'Florbal', icon: '🏑', color: 'mid' },
+  florbal_trenink: { label: 'Florbal trénink', icon: '🏑', color: 'mid' },
+  florbal_zapas: { label: 'Florbal zápas', icon: '🏆', color: 'mid' },
+  vo2max: { label: 'VO2max session (4×4)', icon: '🔥', color: 'mid' },
   gym: { label: 'Gym', icon: '🏋️', color: 'accent' },
   e_block: { label: 'Kettlebell den (E)', icon: '🔔', color: 'accent' },
   f_block: { label: 'Landmine den (F)', icon: '⚙️', color: 'accent' },
   other: { label: 'Jiné', icon: '·', color: 'tertiary' }
 };
+
+// VO2max body za jednotlivé aktivity
+const VO2MAX_POINTS = {
+  vo2max: 1.0,
+  florbal_zapas: 0.8,
+  florbal_trenink: 0.5
+};
+
+const VO2MAX_TARGET = 1.0;       // cíl bodů za 10 dní
+const VO2MAX_WINDOW_DAYS = 10;   // klouzavé okno
+
+// Zone 2 — minuty za týden
+// Klíč = typ aktivity, hodnota = default délka v minutách (placeholder, upravitelné v budoucnu)
+const Z2_ACTIVITIES = {
+  inline_easy: 60   // 1× session = 60 min default
+};
+
+const Z2_TARGET_MIN = 180;       // cíl minut za 7 dní
+const Z2_WINDOW_DAYS = 7;        // klouzavé okno (týden)
 
 const BODY_PARTS = ['bedra', 'hams', 'koleno', 'rameno', 'loket'];
 
@@ -1282,6 +1454,96 @@ function addHistoryEntry(entry) {
 /* ========================================
    BALANCE CALCULATION (sliding 7-day window)
    ======================================== */
+/* ========================================
+   VO2max BODY (klouzavé okno 10 dní)
+   ======================================== */
+function calculateVo2maxPoints() {
+  let total = 0;
+  const events = []; // { date, type, points, daysAgo }
+
+  for (const entry of state.history) {
+    const days = daysAgo(entry.date);
+    if (days < 0 || days > VO2MAX_WINDOW_DAYS) continue;
+
+    let points = 0;
+    if (VO2MAX_POINTS[entry.type] !== undefined) {
+      points = VO2MAX_POINTS[entry.type];
+    }
+
+    if (points > 0) {
+      total += points;
+      events.push({
+        date: entry.date,
+        type: entry.type,
+        points,
+        daysAgo: days
+      });
+    }
+  }
+
+  events.sort((a, b) => a.daysAgo - b.daysAgo);
+  return { total: Math.round(total * 10) / 10, events };
+}
+
+function getVo2maxStatus() {
+  const { total, events } = calculateVo2maxPoints();
+  const pct = Math.min(100, Math.round((total / VO2MAX_TARGET) * 100));
+  let status, emoji, label;
+  if (total >= VO2MAX_TARGET) {
+    status = 'good'; emoji = '✅'; label = 'Pokryto';
+  } else if (total >= 0.5) {
+    status = 'mid'; emoji = '⚠️'; label = 'Plánuj';
+  } else if (total > 0) {
+    status = 'mid'; emoji = '🔶'; label = 'Podpokrytí';
+  } else {
+    status = 'bad'; emoji = '❌'; label = 'Naléhavé';
+  }
+  return { total, target: VO2MAX_TARGET, pct, events, status, emoji, label };
+}
+
+/* ========================================
+   ZONE 2 MINUTY (klouzavé okno 7 dní)
+   ======================================== */
+function calculateZ2Minutes() {
+  let total = 0;
+  const events = []; // { date, type, minutes, daysAgo }
+
+  for (const entry of state.history) {
+    const days = daysAgo(entry.date);
+    if (days < 0 || days > Z2_WINDOW_DAYS) continue;
+
+    const minutes = Z2_ACTIVITIES[entry.type];
+    if (minutes && minutes > 0) {
+      total += minutes;
+      events.push({
+        date: entry.date,
+        type: entry.type,
+        minutes,
+        daysAgo: days
+      });
+    }
+  }
+
+  events.sort((a, b) => a.daysAgo - b.daysAgo);
+  return { total, events };
+}
+
+function getZ2Status() {
+  const { total, events } = calculateZ2Minutes();
+  const pct = Math.min(100, Math.round((total / Z2_TARGET_MIN) * 100));
+  let status, emoji, label;
+  if (total >= Z2_TARGET_MIN) {
+    status = 'good'; emoji = '✅'; label = 'Pokryto';
+  } else if (total >= Z2_TARGET_MIN * 0.5) {
+    status = 'mid'; emoji = '⚠️'; label = 'Plánuj';
+  } else if (total > 0) {
+    status = 'mid'; emoji = '🔶'; label = 'Podpokrytí';
+  } else {
+    status = 'bad'; emoji = '❌'; label = 'Naléhavé';
+  }
+  return { total, target: Z2_TARGET_MIN, pct, events, status, emoji, label };
+}
+
 function calculateBalance() {
   const balance = {};
   SLOTS.forEach(s => {
@@ -1340,6 +1602,7 @@ function getSlotStatus(slotId) {
 function render() {
   document.getElementById('header-date').textContent = formatHeaderDate();
   renderHero();
+  renderCardioTrackers();
   renderBalance();
   renderHistory();
 }
@@ -1374,6 +1637,183 @@ function renderHero() {
       </div>
     `;
   }
+}
+
+function renderCardioTrackers() {
+  const container = document.getElementById('cardio-trackers');
+  const z2 = getZ2Status();
+  const v = getVo2maxStatus();
+
+  container.innerHTML = `
+    ${renderTrackerCard({
+      key: 'z2',
+      title: `Zone 2 — ${Z2_WINDOW_DAYS} dní`,
+      pct: z2.pct,
+      progressLabel: `${z2.total} / ${z2.target} min`,
+      statusLabel: z2.label,
+      onclick: 'openZ2Detail()'
+    })}
+    ${renderTrackerCard({
+      key: 'vo2max',
+      title: `VO2max — ${VO2MAX_WINDOW_DAYS} dní`,
+      pct: v.pct,
+      progressLabel: `${v.total.toFixed(1)} / ${v.target.toFixed(1)} bodů`,
+      statusLabel: v.label,
+      onclick: 'openVo2maxDetail()'
+    })}
+  `;
+}
+
+function renderTrackerCard({ key, title, pct, progressLabel, statusLabel, onclick }) {
+  // Pokud je pct 0, ukaž prázdnou baterii s "0 %" v levém okraji
+  // Pokud pct < 15, ukaž "X %" mimo bar (vlevo, ale tmavě)
+  // Jinak ukaž text uvnitř baru (bíle, vpravo)
+  const isZero = pct === 0;
+  const isSmall = pct > 0 && pct < 15;
+  const fillClass = isZero ? 'tracker-battery-fill empty' : 'tracker-battery-fill';
+
+  let pctHtml;
+  if (isZero) {
+    pctHtml = `<span class="tracker-battery-pct outside zero">0 %</span>`;
+  } else if (isSmall) {
+    pctHtml = `<span class="tracker-battery-pct outside">${pct} %</span>`;
+  } else {
+    pctHtml = `<div class="${fillClass}" style="width: ${pct}%;"><span class="tracker-battery-pct">${pct} %</span></div>`;
+  }
+
+  return `
+    <div class="tracker-card" onclick="${onclick}">
+      <div class="tracker-header">
+        <div class="tracker-title">${title}</div>
+        <div class="tracker-meta-right">${statusLabel}</div>
+      </div>
+      <div class="tracker-battery">
+        ${isZero || isSmall
+          ? `<div class="${fillClass}" style="width: ${pct}%;"></div>${pctHtml}`
+          : pctHtml
+        }
+      </div>
+      <div class="tracker-bottom">
+        <span class="tracker-progress">${progressLabel}</span>
+      </div>
+    </div>
+  `;
+}
+
+function openZ2Detail() {
+  const z2 = getZ2Status();
+  const body = document.getElementById('slot-modal-body');
+  document.querySelector('#slot-modal .modal-header > div').textContent = 'Zone 2';
+
+  const eventsHtml = z2.events.length === 0
+    ? `<div style="text-align:center; padding: 24px; color: var(--text-tertiary); font-size: 13px;">Žádný Z2 trénink za ${Z2_WINDOW_DAYS} dní.</div>`
+    : z2.events.map(e => {
+        const label = ACTIVITY_TYPES[e.type]?.label || e.type;
+        const icon = ACTIVITY_TYPES[e.type]?.icon || '·';
+        const daysAgoText = e.daysAgo === 0 ? 'dnes' : e.daysAgo === 1 ? 'včera' : `před ${e.daysAgo} dny`;
+        return `
+          <div class="tracker-detail-event">
+            <div>
+              <span style="margin-right: 8px;">${icon}</span>
+              <span class="tracker-detail-event-name">${label}</span>
+              <span class="tracker-detail-event-meta"> · ${daysAgoText}</span>
+            </div>
+            <div class="tracker-detail-event-points">+${e.minutes} min</div>
+          </div>
+        `;
+      }).join('');
+
+  let advice = '';
+  if (z2.total >= z2.target) {
+    advice = 'Zone 2 dose pokrytá. Sweet spot pro mitochondriální adaptaci a longevity.';
+  } else if (z2.total >= z2.target * 0.5) {
+    advice = `Plánuj další Z2 sezení tento týden. Cíl je 180+ min týdně (Attia, San Millán).`;
+  } else if (z2.total > 0) {
+    advice = `Z2 podpokryt — pod minimem pro mitochondriální adaptaci. Naplánuj 2-3 inline sezení tento týden.`;
+  } else {
+    advice = `Žádný Z2 stimulus tento týden. Inline klidně 60 min × 3-4× týdně je tvůj sweet spot.`;
+  }
+
+  body.innerHTML = `
+    <div class="slot-detail">
+      <h3>Zone 2 ${z2.emoji}</h3>
+      <div class="subtitle">${z2.total} / ${z2.target} minut za posledních ${Z2_WINDOW_DAYS} dní (${z2.pct} %)</div>
+
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">
+        Co se počítá
+      </div>
+      <div class="slot-detail-row"><div class="slot-detail-name">Inline klidně</div><div class="slot-detail-time">+60 min / sezení</div></div>
+
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin: 16px 0 8px;">
+        Tvoje sezení
+      </div>
+      <div class="tracker-detail-events">${eventsHtml}</div>
+
+      <div style="margin-top: 16px; padding: 12px 14px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+        ${advice}
+      </div>
+    </div>
+  `;
+  openModal('slot-modal');
+}
+
+function openVo2maxDetail() {
+  const v = getVo2maxStatus();
+  const body = document.getElementById('slot-modal-body');
+  document.querySelector('#slot-modal .modal-header > div').textContent = 'VO2max stimulus';
+
+  const eventsHtml = v.events.length === 0
+    ? `<div style="text-align:center; padding: 24px; color: var(--text-tertiary); font-size: 13px;">Žádný stimulus za ${VO2MAX_WINDOW_DAYS} dní.</div>`
+    : v.events.map(e => {
+        const label = ACTIVITY_TYPES[e.type]?.label || e.type;
+        const icon = ACTIVITY_TYPES[e.type]?.icon || '·';
+        const daysAgoText = e.daysAgo === 0 ? 'dnes' : e.daysAgo === 1 ? 'včera' : `před ${e.daysAgo} dny`;
+        return `
+          <div class="tracker-detail-event">
+            <div>
+              <span style="margin-right: 8px;">${icon}</span>
+              <span class="tracker-detail-event-name">${label}</span>
+              <span class="tracker-detail-event-meta"> · ${daysAgoText}</span>
+            </div>
+            <div class="tracker-detail-event-points">+${e.points.toFixed(1)}</div>
+          </div>
+        `;
+      }).join('');
+
+  let advice = '';
+  if (v.total >= v.target) {
+    advice = 'Stimulus pokrytý. Pokračuj s aktuální rutinou.';
+  } else if (v.total >= 0.5) {
+    advice = `Stimulus částečně pokrytý. Zvaž 4×4 nebo strukturovaný high-intensity v nejbližších dnech.`;
+  } else if (v.total > 0) {
+    advice = `Stimulus podpokrytý. Naplánuj 4×4 běh tento týden.`;
+  } else {
+    advice = `${VO2MAX_WINDOW_DAYS}+ dní bez stimulu. Doporučuji 4×4 dnes nebo zítra.`;
+  }
+
+  body.innerHTML = `
+    <div class="slot-detail">
+      <h3>VO2max ${v.emoji}</h3>
+      <div class="subtitle">${v.total.toFixed(1)} / ${v.target.toFixed(1)} bodů za posledních ${VO2MAX_WINDOW_DAYS} dní</div>
+
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">
+        Jak se počítá
+      </div>
+      <div class="slot-detail-row"><div class="slot-detail-name">VO2max session (4×4)</div><div class="slot-detail-time">+1.0</div></div>
+      <div class="slot-detail-row"><div class="slot-detail-name">Florbal zápas</div><div class="slot-detail-time">+0.8</div></div>
+      <div class="slot-detail-row"><div class="slot-detail-name">Florbal trénink</div><div class="slot-detail-time">+0.5</div></div>
+
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin: 16px 0 8px;">
+        Tvoje stimuly
+      </div>
+      <div class="tracker-detail-events">${eventsHtml}</div>
+
+      <div style="margin-top: 16px; padding: 12px 14px; background: var(--bg-card); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+        ${advice}
+      </div>
+    </div>
+  `;
+  openModal('slot-modal');
 }
 
 function renderBalance() {
@@ -1846,6 +2286,29 @@ function generateRecommendation(cc) {
     };
   }
 
+  // 3.5 VO2max push — pokud body chybí a jsi fresh (pocit ≤ 2) + zítra ne sport
+  const v = getVo2maxStatus();
+  const wasSportYesterday = ['florbal_zapas', 'florbal_trenink', 'inline_tempo', 'vo2max'].includes(yesterday);
+  const noBodyBlocking = !bodyFeel.some(b => ['hams', 'koleno'].includes(b));
+
+  if (v.total < 0.5 && feeling <= 2 && tomorrow !== 'sport' && !wasSportYesterday && noBodyBlocking) {
+    let reason;
+    if (v.total === 0) {
+      reason = `${VO2MAX_WINDOW_DAYS}+ dní bez VO2max stimulu. Pocit je dobrý, zítra volno — ideální den pro 4×4 běh.`;
+    } else {
+      reason = `VO2max stimulus chybí (${v.total.toFixed(1)} / ${v.target.toFixed(1)} bodů za ${VO2MAX_WINDOW_DAYS} dní). Pocit je dobrý, dnes ideální čas na 4×4.`;
+    }
+    return {
+      title: 'VO2max session — 4×4 běh',
+      type: 'vo2max',
+      exercises: [],
+      reason,
+      intensity: 'těžce',
+      softMode: false,
+      isVo2max: true
+    };
+  }
+
   // 4. Vždy zkusit ad-hoc mix nejdřív (preference hlavních cviků před bloky)
   const adHoc = buildAdHocRecommendation(allowedExercises, cc, softMode);
 
@@ -1853,6 +2316,15 @@ function generateRecommendation(cc) {
   // vyřadil hodně cviků a zůstaly jen landmine/upper kategorie 1)
   if (adHoc.exercises.length < 2) {
     return buildBlockRecommendation('F', cc, softMode);
+  }
+
+  // Připoj VO2max poznámku pokud body chybí, ale podmínky pro push nejsou
+  if (v.total < v.target && !adHoc.reason.includes('VO2max')) {
+    if (v.total < 0.5) {
+      adHoc.reason += `\n\nPozn.: VO2max stimulus chybí (${v.total.toFixed(1)} bodů). Naplánuj 4×4 brzy.`;
+    } else {
+      adHoc.reason += `\n\nPozn.: VO2max ${v.total.toFixed(1)}/${v.target.toFixed(1)} — zvaž 4×4 později v týdnu.`;
+    }
   }
 
   return adHoc;
@@ -1868,7 +2340,7 @@ function detectSoftMode(cc) {
   const sig3 = cc.bodyFeel && cc.bodyFeel.length > 0;
 
   // Signal 4: 2 sport days in a row + feeling >= 4
-  const sportTypes = ['inline_tempo', 'florbal'];
+  const sportTypes = ['inline_tempo', 'florbal_zapas', 'florbal_trenink'];
   const last2 = state.history.slice(0, 2);
   const sig5 = last2.filter(h => sportTypes.includes(h.type)).length >= 2 && cc.feeling >= 4;
 
@@ -1913,12 +2385,12 @@ function filterAllowedExercises(yesterday, feeling, tomorrow, bodyFeel, softMode
     if (allowed) {
       // Cat 3 (Dřep, Deadlift) — only after rest, easy inline (with feeling), gym light, stretching
       if (ex.cat === 3) {
-        if (yesterday === 'florbal' || yesterday === 'inline_tempo') { allowed = false; reason = 'po sportu'; }
+        if ((yesterday === 'florbal_zapas' || yesterday === 'florbal_trenink') || yesterday === 'inline_tempo') { allowed = false; reason = 'po sportu'; }
         if (yesterday === 'inline_easy' && feeling > 3) { allowed = false; reason = 'inline + pocit'; }
       }
       // Cat 2 spodek — Bulhar, KB swing, Goblet, Hyper
       if (allowed && ex.cat === 2 && ex.subcat === 'spodek') {
-        if (yesterday === 'florbal' || yesterday === 'inline_tempo') { allowed = false; reason = 'po sportu'; }
+        if ((yesterday === 'florbal_zapas' || yesterday === 'florbal_trenink') || yesterday === 'inline_tempo') { allowed = false; reason = 'po sportu'; }
       }
       // Cat 2 vršek — Barbell row
       if (allowed && ex.cat === 2 && ex.subcat === 'vrsek') {
@@ -1963,7 +2435,7 @@ function decideBlock(yesterday, feeling, bodyFeel) {
   const eBlockCount = last7.filter(h => h.type === 'e_block').length;
 
   // F block — after sport or heavy gym, when upper recovery makes sense
-  const wasSport = yesterday === 'florbal' || yesterday === 'inline_tempo';
+  const wasSport = (yesterday === 'florbal_zapas' || yesterday === 'florbal_trenink') || yesterday === 'inline_tempo';
   const wasHeavyGym = yesterday === 'gym'; // approximation
 
   if (wasSport && fBlockCount === 0 && feeling <= 4) {
@@ -1989,13 +2461,13 @@ function buildBlockRecommendation(blockType, cc, softMode) {
 
   let reason = '';
   if (blockType === 'F') {
-    if (cc.yesterday === 'florbal') reason = 'Po florbale je upper-body recovery to nejlepší. Landmine drží integritu, žádné nárazy na nohy nebo bedra.';
+    if (cc.yesterday === 'florbal_zapas' || cc.yesterday === 'florbal_trenink') reason = 'Po florbale je upper-body recovery to nejlepší. Landmine drží integritu, žádné nárazy na nohy nebo bedra.';
     else if (cc.yesterday === 'inline_tempo') reason = 'Po inline s tempem zatížíme jen vršek. Landmine den drží integritu kategorie 1.';
     else if (cc.yesterday === 'gym') reason = 'Po těžkém gymu si vršek zaslouží lehčí kvalitní stimul. Landmine den nepřetíží CNS ani bedra.';
     else reason = 'Pocit + bilance dnes ladí na lehčí upper-body session. Landmine den drží integritu jako celek.';
   } else {
     // E block — různé reasony podle kontextu
-    const wasSport = cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo';
+    const wasSport = (cc.yesterday === 'florbal_zapas' || cc.yesterday === 'florbal_trenink') || cc.yesterday === 'inline_tempo';
     if (wasSport) {
       reason = 'Po sportu E blok funguje, jen pokud jsou nohy fresh (pocit svěží/fajn). Swing a goblet ber lehčí, krátké série, žádné explozivní hrdinství. Carry a halo bezpečně vždy.';
     } else if (cc.yesterday === 'gym') {
@@ -2158,7 +2630,7 @@ function buildAdHocRecommendation(allowedMap, cc, softMode) {
   // Build reason
   const gapNames = gaps.filter(g => g.severity >= 1).map(g => SLOTS.find(s => s.id === g.slot).name);
   let reason = '';
-  if (cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo') {
+  if ((cc.yesterday === 'florbal_zapas' || cc.yesterday === 'florbal_trenink') || cc.yesterday === 'inline_tempo') {
     reason = `Po sportu jen kategorie 1 — vršek, žádné nohy. ${gapNames.length > 0 ? `V bilanci chybí ${gapNames[0]}, dnes pokryjeme.` : ''}`;
   } else if (cc.yesterday === 'rest' || cc.yesterday === 'stretching') {
     reason = `Tělo je odpočinuté, jdeme naplno. ${gapNames.length > 0 ? `Bilance prosí ${gapNames.slice(0, 2).join(' + ')}.` : 'Bilance je v pohodě.'}`;
@@ -2178,7 +2650,7 @@ function buildAdHocRecommendation(allowedMap, cc, softMode) {
   else if (cc.feeling === 3) intensity = 'středně';
   else intensity = 'lehce';
   if (softMode) intensity = 'lehce';
-  if (cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo') {
+  if ((cc.yesterday === 'florbal_zapas' || cc.yesterday === 'florbal_trenink') || cc.yesterday === 'inline_tempo') {
     if (intensity === 'těžce') intensity = 'středně';
   }
 
@@ -2220,6 +2692,40 @@ function closeRecommendation() {
 function renderRecommendation() {
   const r = state.currentRecommendation;
   const body = document.getElementById('recommendation-body');
+
+  if (r.type === 'vo2max') {
+    body.innerHTML = `
+      <div class="recommendation active">
+        <div class="hero-label">Dnešní doporučení</div>
+        <div class="question-title" style="margin-bottom: 8px;">${r.title}</div>
+        <div class="rec-reason">${r.reason}</div>
+        <div class="exercise-card" style="margin-bottom: 12px;">
+          <div class="exercise-name">Norský 4×4 protokol</div>
+          <div class="exercise-meta" style="margin-bottom: 8px;">
+            <span>~38 minut</span>
+            <span class="intensity-badge intensity-heavy">90–95 % HRmax</span>
+          </div>
+          <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-top: 8px;">
+            <div style="margin-bottom: 4px;"><strong style="color: var(--text-primary);">Warmup</strong> · 10 min postupně zvyšující tempo</div>
+            <div style="margin-bottom: 4px;"><strong style="color: var(--text-primary);">4× interval</strong> · 4 min na 90–95 % HRmax</div>
+            <div style="margin-bottom: 4px;"><strong style="color: var(--text-primary);">3× recovery</strong> · 3 min na 60–70 % HRmax (nezastavovat)</div>
+            <div><strong style="color: var(--text-primary);">Cooldown</strong> · 5 min easy</div>
+          </div>
+        </div>
+        <div class="exercise-card" style="margin-bottom: 20px;">
+          <div class="exercise-name" style="font-size: 14px; margin-bottom: 4px;">💡 Tip</div>
+          <div class="exercise-note" style="font-style: normal; line-height: 1.5;">Modalita: běh (rovnatá trasa, atletický stadion, park). Subjektivně RPE 9 — můžeš ještě 30s, ale ne 4 min navíc. V poslední intervalu daj všechno.</div>
+        </div>
+        <div class="rec-actions">
+          ${state.recommendationTaken ? '<div style="text-align:center; padding: 12px; color: var(--status-good); font-weight: 600;">✓ Označeno jako splněné</div>' : `
+          <button class="btn-primary" onclick="acceptRecommendation()">Beru to</button>
+          ${hasNextAlternative(r) ? `<button class="btn-secondary" onclick="requestAlternative()" style="width: 100%;">Dej alternativu</button>` : ''}
+          `}
+        </div>
+      </div>
+    `;
+    return;
+  }
 
   if (r.type === 'stretching') {
     body.innerHTML = `
@@ -2327,7 +2833,7 @@ function getRecommendationKind(r) {
 
 function isAlternativePossible(kind, cc) {
   if (kind === 'e_block') {
-    const wasSport = cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo';
+    const wasSport = (cc.yesterday === 'florbal_zapas' || cc.yesterday === 'florbal_trenink') || cc.yesterday === 'inline_tempo';
     const bodyBlocking = cc.bodyFeel.some(b => ['hams', 'bedra', 'koleno'].includes(b));
     if (bodyBlocking) return false;
     // Po sportu E blok jen pokud pocit svěží/fajn (1-2)
@@ -2336,7 +2842,7 @@ function isAlternativePossible(kind, cc) {
     if (!wasSport && cc.feeling > 3) return false;
   }
   if (kind === 'compound_mix') {
-    const wasSport = cc.yesterday === 'florbal' || cc.yesterday === 'inline_tempo';
+    const wasSport = (cc.yesterday === 'florbal_zapas' || cc.yesterday === 'florbal_trenink') || cc.yesterday === 'inline_tempo';
     const bodyBlocking = cc.bodyFeel.some(b => ['hams', 'bedra', 'koleno'].includes(b));
     if (wasSport || bodyBlocking || cc.tomorrow === 'sport') return false;
   }
